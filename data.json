@@ -116,5 +116,48 @@
             "minor": ""
         },
         "Tags": "None"
+    },
+    {
+        "ID": 7,
+        "Type": "multiple",
+        "Question": "ad",
+        "Choices": [
+            "asdf",
+            "asdf",
+            "asd",
+            "asdf"
+        ],
+        "Answers": [
+            "2",
+            "4"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "",
+            "sub": "",
+            "minor": ""
+        },
+        "Tags": "None"
+    },
+    {
+        "ID": 8,
+        "Type": "multiple",
+        "Question": "adf",
+        "Choices": [
+            "asdf",
+            "adsf",
+            "adsf"
+        ],
+        "Answers": [
+            "2",
+            "3"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류2",
+            "sub": "중분류2-1",
+            "minor": "소분류2-1-1"
+        },
+        "Tags": "None"
     }
 ]

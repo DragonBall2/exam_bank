@@ -5,8 +5,14 @@
     <title>문제를 출제 해 주세요.</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            showForm();
+        });
+
         function showForm() {
-            const type = document.querySelector('input[name="question_type"]:checked').value;
+            const selectedType = document.querySelector('input[name="question_type"]:checked');
+            if (!selectedType) return; // 라디오 버튼이 선택되지 않은 경우 함수 종료
+            const type = selectedType.value;
             const multipleChoice = document.getElementById('multiple_choice');
             const subjective = document.getElementById('subjective');
 

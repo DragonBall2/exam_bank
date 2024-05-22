@@ -2,5 +2,9 @@
     {
         "id": "yjoo.kwon",
         "password": "scrypt:32768:8:1$VeYQOLt2F5bIzKr2$58a08dc0a11d97e2193b13e7a6357e1a6eb769fb4d8c12b88d93525de34d5fa100d64bbd92637b2b7a97022be1e596f08c04b4bdf6b5f7baebbdbff0bde268fb"
+    },
+    {
+        "id": "admin",
+        "password": "scrypt:32768:8:1$zWcjnOGjMaSujfLF$d4d0d44a7011ddfa88f4c086037ab186874dfbb7e2f84d2fa0ac261e1d3210adbc26c4720361f19c45491a1ba91375efe05a1dc0f05e5afd0ee23a8bb90e59aa"
     }
 ]
