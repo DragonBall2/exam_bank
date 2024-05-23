@@ -63,7 +63,10 @@ def load_user(user_id):
 def index():
     with open(DATA_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    user_questions = [q for q in data if q['SubmitterID'] == current_user.id]
+    if current_user.id == 'admin':
+        user_questions = data
+    else:
+        user_questions = [q for q in data if q['SubmitterID'] == current_user.id]
     last_type = request.cookies.get('last_type')
     last_category = {
         'main': request.cookies.get('last_main_category', ''),
@@ -188,7 +191,7 @@ def submit_question():
 def edit_question(question_id):
     with open(DATA_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    question = next((q for q in data if q['ID'] == question_id and q['SubmitterID'] == current_user.id), None)
+    question = next((q for q in data if q['ID'] == question_id and (q['SubmitterID'] == current_user.id or current_user.id == 'admin')), None)
     if question is None:
         flash('Question not found or you do not have permission to edit it.', 'error')
         return redirect(url_for('index'))
@@ -225,7 +228,7 @@ def delete_question(question_id):
     try:
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        data = [q for q in data if not (q['ID'] == question_id and q['SubmitterID'] == current_user.id)]
+        data = [q for q in data if not (q['ID'] == question_id and (q['SubmitterID'] == current_user.id or current_user.id == 'admin'))]
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
         flash('Question successfully deleted!', 'success')

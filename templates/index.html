@@ -165,8 +165,8 @@
             loadCategories();
             document.getElementById('main_category').addEventListener('change', () => updateSubcategories());
             document.getElementById('sub_category').addEventListener('change', () => updateMinorCategories());
-            showForm();
             document.querySelector('form').addEventListener('submit', validateForm);
+            showForm();
         });
     </script>
     <style>
@@ -307,13 +307,13 @@
 
     <form action="/submit" method="POST" class="form-container">
         <label>
-            <input type="radio" name="question_type" value="multiple" onclick="showForm()" {% if last_type == 'multiple' %}checked{% endif %}> 객관식
+            <input type="radio" name="question_type" value="multiple" onclick="showForm()" {% if last_type == 'multiple' or last_type is none %}checked{% endif %}> 객관식
         </label>
         <label>
             <input type="radio" name="question_type" value="subjective" onclick="showForm()" {% if last_type == 'subjective' %}checked{% endif %}> 주관식
         </label>
 
-        <div id="multiple_choice" style="display: {% if last_type == 'multiple' %}block{% else %}none{% endif %};">
+        <div id="multiple_choice" style="display: {% if last_type == 'multiple' or last_type is none %}block{% else %}none{% endif %};">
             <h3>객관식 문제</h3>
             <label>문제: <textarea name="mc_question" rows="3" required></textarea></label><br>
             <div id="choices">
