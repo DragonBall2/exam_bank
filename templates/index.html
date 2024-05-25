@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>문제를 출제 해 주세요.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -11,7 +12,7 @@
 
         function showForm() {
             const selectedType = document.querySelector('input[name="question_type"]:checked');
-            if (!selectedType) return; // 라디오 버튼이 선택되지 않은 경우 함수 종료
+            if (!selectedType) return;
             const type = selectedType.value;
             const multipleChoice = document.getElementById('multiple_choice');
             const subjective = document.getElementById('subjective');
@@ -238,6 +239,7 @@
 
         body {
             padding: 0 10%;
+            font-family: 'Roboto', sans-serif;
         }
 
         textarea {
@@ -253,10 +255,24 @@
 
         .title-container h2 {
             margin: 0;
+            font-size: 2em;
+            font-weight: 700;
+            color: #333;
         }
 
         .title-container .download-btn {
             margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .title-container .download-btn:hover {
+            background-color: #0056b3;
         }
 
         .admin-btns {
@@ -272,16 +288,88 @@
         .questions-list {
             max-width: 800px;
             margin: 0 auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fff;
         }
 
         .form-container {
             max-width: 800px;
             margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         #mc_answers label {
             display: inline-block;
             margin-right: 10px;
+        }
+
+        h1#main-title {
+            text-align: center;
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .flashes {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            width: 50%;
+            text-align: center;
+        }
+
+        .flashes li {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .flashes li.success {
+            background-color: #28a745;
+        }
+
+        .flashes li.error {
+            background-color: #dc3545;
+        }
+
+        .question-count {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .question {
+            margin-bottom: 20px;
+        }
+
+        .question p {
+            margin: 0 0 10px;
+        }
+
+        .question ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .question ul li {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .question hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
         }
     </style>
 </head>

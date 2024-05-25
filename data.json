@@ -218,5 +218,63 @@
             "minor": ""
         },
         "Tags": "None"
+    },
+    {
+        "ID": 12,
+        "Type": "multiple",
+        "Question": "asdf",
+        "Choices": [
+            "adf",
+            "asdf",
+            "asdf",
+            "asdf"
+        ],
+        "Answers": [
+            "3"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-1"
+        },
+        "Tags": "None"
+    },
+    {
+        "ID": 13,
+        "Type": "multiple",
+        "Question": "dfa",
+        "Choices": [
+            "adsf",
+            "asdf",
+            "asdf",
+            "asdf"
+        ],
+        "Answers": [
+            "3"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류2",
+            "sub": "중분류2-2",
+            "minor": "소분류2-2-2"
+        },
+        "Tags": "None"
+    },
+    {
+        "ID": 14,
+        "Type": "subjective",
+        "Question": "adf",
+        "Choices": null,
+        "Answers": [
+            "adsf"
+        ],
+        "SubmitterID": "admin",
+        "Category": {
+            "main": "",
+            "sub": "",
+            "minor": ""
+        },
+        "Tags": "None"
     }
 ]
