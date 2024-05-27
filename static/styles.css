@@ -10,14 +10,14 @@ h1, h2 {
     margin-top: 20px;
 }
 
-/* .form-container {
+.form-container {
     max-width: 800px; 
     margin: 20px auto;
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #fff;
-} */
+}
 
 form {
     width: 100%;
