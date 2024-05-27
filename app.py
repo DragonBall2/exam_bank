@@ -2,6 +2,10 @@ from flask import Flask, render_template, request, redirect, flash, url_for, sen
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import json
 import os
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+from io import BytesIO
+import base64
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -15,6 +19,7 @@ DATA_FILE = 'data.json'
 USERS_FILE = 'users.json'
 VOC_FILE = 'voc.json'
 CATEGORIES_FILE = 'categories.json'
+FONT_PATH = 'templates/NanumGothic.ttf'
 
 if not os.path.exists(DATA_FILE):
     with open(DATA_FILE, 'w', encoding='utf-8') as f:
@@ -58,6 +63,38 @@ class User(UserMixin):
 def load_user(user_id):
     return User.get(user_id)
 
+def generate_category_pie_chart(data):
+    category_count = {}
+    total_questions = len(data)
+    for question in data:
+        if 'Category' in question and 'main' in question['Category']:
+            category = question['Category']['main']
+            if category in category_count:
+                category_count[category] += 1
+            else:
+                category_count[category] = 1
+
+    labels = list(category_count.keys())
+    sizes = list(category_count.values())
+
+    fontprop = fm.FontProperties(fname=FONT_PATH, size=12)
+
+    plt.figure(figsize=(6, 6))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
+    plt.title(f'Category Distribution (Total: {total_questions})', pad=20, fontproperties=fontprop)
+
+    # 라벨에 폰트 적용
+    for label in plt.gca().texts:
+        label.set_fontproperties(fontprop)
+
+    plt.tight_layout()
+    img = BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    img_base64 = base64.b64encode(img.getvalue()).decode()
+    plt.close()
+    return img_base64
+
 @app.route('/')
 @login_required
 def index():
@@ -67,6 +104,7 @@ def index():
         user_questions = data
     else:
         user_questions = [q for q in data if q['SubmitterID'] == current_user.id]
+
     last_type = request.cookies.get('last_type')
     last_category = {
         'main': request.cookies.get('last_main_category', ''),
@@ -74,7 +112,9 @@ def index():
         'minor': request.cookies.get('last_minor_category', '')
     }
     last_tags = request.cookies.get('last_tags')
-    return render_template('index.html', questions=user_questions, user=current_user, last_type=last_type, last_category=last_category, last_tags=last_tags)
+
+    chart_base64 = generate_category_pie_chart(user_questions)
+    return render_template('index.html', questions=user_questions, user=current_user, last_type=last_type, last_category=last_category, last_tags=last_tags, chart_base64=chart_base64)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

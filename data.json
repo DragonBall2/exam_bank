@@ -34,13 +34,13 @@
             "asdf"
         ],
         "Answers": [
-            "4"
+            "2"
         ],
         "SubmitterID": "yjoo.kwon",
         "Category": {
-            "main": "",
-            "sub": "",
-            "minor": ""
+            "main": "대분류2",
+            "sub": "중분류2-1",
+            "minor": "소분류2-1-2"
         },
         "Tags": "None"
     },
@@ -54,12 +54,14 @@
             "awdf",
             "awdf"
         ],
-        "Answers": [],
+        "Answers": [
+            "2"
+        ],
         "SubmitterID": "yjoo.kwon",
         "Category": {
-            "main": "",
-            "sub": "",
-            "minor": ""
+            "main": "대분류2",
+            "sub": "중분류2-1",
+            "minor": "소분류2-1-1"
         },
         "Tags": "None"
     },
@@ -73,12 +75,14 @@
             "adwf",
             "awdf"
         ],
-        "Answers": [],
+        "Answers": [
+            "2"
+        ],
         "SubmitterID": "yjoo.kwon",
         "Category": {
-            "main": "",
-            "sub": "",
-            "minor": ""
+            "main": "대분류1",
+            "sub": "중분류1-2",
+            "minor": "소분류1-2-2"
         },
         "Tags": "None"
     },
@@ -113,12 +117,14 @@
             "dddd",
             "dddd"
         ],
-        "Answers": [],
+        "Answers": [
+            "4"
+        ],
         "SubmitterID": "yjoo.kwon",
         "Category": {
-            "main": "",
-            "sub": "",
-            "minor": ""
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-1"
         },
         "Tags": "None"
     },
@@ -222,31 +228,52 @@
     {
         "ID": 12,
         "Type": "multiple",
-        "Question": "asdf",
+        "Question": "adsfa",
         "Choices": [
-            "adf",
             "asdf",
             "asdf",
-            "asdf"
+            "asdf",
+            "asdfasdfa"
         ],
         "Answers": [
-            "3"
+            "4"
         ],
-        "SubmitterID": "yjoo.kwon",
+        "SubmitterID": "admin",
         "Category": {
             "main": "대분류1",
-            "sub": "중분류1-1",
-            "minor": "소분류1-1-1"
+            "sub": "중분류1-2",
+            "minor": "소분류1-2-1"
         },
         "Tags": "None"
     },
     {
         "ID": 13,
         "Type": "multiple",
-        "Question": "dfa",
+        "Question": "ㅁㅇㄴㄻ",
         "Choices": [
-            "adsf",
-            "asdf",
+            "ㅁㄴㅇㄹ",
+            "ㅁㅇㄴㄹ",
+            "ㅁㄴㅇㄹ",
+            "ㅁㄴㅇㄹ"
+        ],
+        "Answers": [
+            "3"
+        ],
+        "SubmitterID": "admin",
+        "Category": {
+            "main": "대분류2",
+            "sub": "중분류2-1",
+            "minor": "소분류2-1-2"
+        },
+        "Tags": "None"
+    },
+    {
+        "ID": 14,
+        "Type": "multiple",
+        "Question": "adf",
+        "Choices": [
+            "adf",
+            "adsfa",
             "asdf",
             "asdf"
         ],
@@ -256,22 +283,28 @@
         "SubmitterID": "yjoo.kwon",
         "Category": {
             "main": "대분류2",
-            "sub": "중분류2-2",
-            "minor": "소분류2-2-2"
+            "sub": "중분류2-1",
+            "minor": "소분류2-1-1"
         },
         "Tags": "None"
     },
     {
-        "ID": 14,
-        "Type": "subjective",
-        "Question": "adf",
-        "Choices": null,
-        "Answers": [
-            "adsf"
+        "ID": 15,
+        "Type": "multiple",
+        "Question": "adfas",
+        "Choices": [
+            "asdf",
+            "asdfasdf",
+            "asfdas",
+            "asdfaf"
         ],
-        "SubmitterID": "admin",
+        "Answers": [
+            "1",
+            "2"
+        ],
+        "SubmitterID": "yjoo.kwon",
         "Category": {
-            "main": "",
+            "main": "대분류1",
             "sub": "",
             "minor": ""
         },

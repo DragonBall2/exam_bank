@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>문제를 출제 해 주세요.</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -12,7 +11,7 @@
 
         function showForm() {
             const selectedType = document.querySelector('input[name="question_type"]:checked');
-            if (!selectedType) return;
+            if (!selectedType) return; // 라디오 버튼이 선택되지 않은 경우 함수 종료
             const type = selectedType.value;
             const multipleChoice = document.getElementById('multiple_choice');
             const subjective = document.getElementById('subjective');
@@ -239,7 +238,6 @@
 
         body {
             padding: 0 10%;
-            font-family: 'Roboto', sans-serif;
         }
 
         textarea {
@@ -255,24 +253,10 @@
 
         .title-container h2 {
             margin: 0;
-            font-size: 2em;
-            font-weight: 700;
-            color: #333;
         }
 
         .title-container .download-btn {
             margin-left: 10px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .title-container .download-btn:hover {
-            background-color: #0056b3;
         }
 
         .admin-btns {
@@ -288,88 +272,26 @@
         .questions-list {
             max-width: 800px;
             margin: 0 auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            background-color: #fff;
         }
 
-        .form-container {
+        /* .form-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
+        } */
 
         #mc_answers label {
             display: inline-block;
             margin-right: 10px;
         }
 
-        h1#main-title {
-            text-align: center;
-            color: #333;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .flashes {
-            list-style-type: none;
-            padding: 0;
-            margin: 20px auto;
-            width: 50%;
+        .chart-container {
+            margin-top: 40px;
             text-align: center;
         }
 
-        .flashes li {
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            color: white;
-        }
-
-        .flashes li.success {
-            background-color: #28a745;
-        }
-
-        .flashes li.error {
-            background-color: #dc3545;
-        }
-
-        .question-count {
+        .chart-title {
             text-align: center;
-            font-size: 1.2em;
             margin-bottom: 20px;
-        }
-
-        .question {
-            margin-bottom: 20px;
-        }
-
-        .question p {
-            margin: 0 0 10px;
-        }
-
-        .question ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .question ul li {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 5px;
-        }
-
-        .question hr {
-            border: none;
-            border-top: 1px solid #ddd;
-            margin: 20px 0;
         }
     </style>
 </head>
@@ -393,81 +315,83 @@
         <p><a href="{{ url_for('manage_categories') }}">분류 관리</a></p>
     {% endif %}
 
-    <form action="/submit" method="POST" class="form-container">
-        <label>
-            <input type="radio" name="question_type" value="multiple" onclick="showForm()" {% if last_type == 'multiple' or last_type is none %}checked{% endif %}> 객관식
-        </label>
-        <label>
-            <input type="radio" name="question_type" value="subjective" onclick="showForm()" {% if last_type == 'subjective' %}checked{% endif %}> 주관식
-        </label>
+    <div class="form-container">
+        <form action="/submit" method="POST" class="form-container">
+            <label>
+                <input type="radio" name="question_type" value="multiple" onclick="showForm()" {% if last_type == 'multiple' or last_type is none %}checked{% endif %}> 객관식
+            </label>
+            <label>
+                <input type="radio" name="question_type" value="subjective" onclick="showForm()" {% if last_type == 'subjective' %}checked{% endif %}> 주관식
+            </label>
 
-        <div id="multiple_choice" style="display: {% if last_type == 'multiple' or last_type is none %}block{% else %}none{% endif %};">
-            <h3>객관식 문제</h3>
-            <label>문제: <textarea name="mc_question" rows="3" required></textarea></label><br>
-            <div id="choices">
-                <div><label>1. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label><br></div>
-                <div><label>2. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label><br></div>
-                <div><label>3. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label><br></div>
-                <div><label>4. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label><br></div>
+            <div id="multiple_choice" style="display: {% if last_type == 'multiple' or last_type is none %}block{% else %}none{% endif %};">
+                <h3>객관식 문제</h3>
+                <label>문제: <textarea name="mc_question" rows="3" required></textarea></label><br>
+                <div id="choices">
+                    <div><label>1. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label><br></div>
+                    <div><label>2. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label><br></div>
+                    <div><label>3. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label><br></div>
+                    <div><label>4. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label><br></div>
+                </div>
+                <button type="button" onclick="addChoice()">보기 추가</button>
+                <button type="button" onclick="removeChoice()">보기 제거</button><br>
+                <div id="mc_answers"><h4>정답</h4></div>
             </div>
-            <button type="button" onclick="addChoice()">보기 추가</button>
-            <button type="button" onclick="removeChoice()">보기 제거</button><br>
-            <div id="mc_answers"><h4>정답</h4></div>
-        </div>
 
-        <div id="subjective" style="display: {% if last_type == 'subjective' %}block{% else %}none{% endif %};">
-            <h3>주관식 문제</h3>
-            <label>문제: <textarea name="sub_question" rows="3" required></textarea></label><br>
-            <label>정답: <textarea name="sub_answer" rows="3" required></textarea></label><br>
-        </div>
+            <div id="subjective" style="display: {% if last_type == 'subjective' %}block{% else %}none{% endif %};">
+                <h3>주관식 문제</h3>
+                <label>문제: <textarea name="sub_question" rows="3" required></textarea></label><br>
+                <label>정답: <textarea name="sub_answer" rows="3" required></textarea></label><br>
+            </div>
 
-        <h3>분류</h3>
-        <label>대분류:
-            <select id="main_category" name="main_category">
-                <option value="">대분류 선택</option>
-            </select>
-        </label><br>
-        <label>중분류:
-            <select id="sub_category" name="sub_category">
-                <option value="">중분류 선택</option>
-            </select>
-        </label><br>
-        <label>소분류:
-            <select id="minor_category" name="minor_category">
-                <option value="">소분류 선택</option>
-            </select>
-        </label><br>
+            <h3>분류</h3>
+            <label>대분류:
+                <select id="main_category" name="main_category">
+                    <option value="">대분류 선택</option>
+                </select>
+            </label><br>
+            <label>중분류:
+                <select id="sub_category" name="sub_category">
+                    <option value="">중분류 선택</option>
+                </select>
+            </label><br>
+            <label>소분류:
+                <select id="minor_category" name="minor_category">
+                    <option value="">소분류 선택</option>
+                </select>
+            </label><br>
 
-        <label>태그: <textarea name="tags" rows="3">{{ last_tags }}</textarea></label><br>
+            <label>태그: <textarea name="tags" rows="3">{{ last_tags }}</textarea></label><br>
 
-        <input type="submit" value="제출">
-    </form>
-
-    <button id="feedback-button" onclick="openPopup()">기능제안 및 버그신고</button>
-    {% if user.id == 'admin' %}
-        <button id="download-users-button" onclick="window.location.href='{{ url_for('download_users') }}'">USER 목록 다운로드</button>
-    {% endif %}
-
-    <div id="voc-popup" class="popup">
-        <div class="popup-header">
-            <h2>기능제안 및 버그신고</h2>
-            <span class="close" onclick="closePopup()">&times;</span>
-        </div>
-        <form action="/submit_voc" method="POST" class="voc-container">
-            <label for="voc_type">유형:</label>
-            <select id="voc_type" name="voc_type" required>
-                <option value="Feature Suggestion">기능 제안</option>
-                <option value="Bug Report">버그 신고</option>
-            </select><br>
-            <label for="voc_content">내용:</label>
-            <textarea id="voc_content" name="voc_content" rows="4" required></textarea><br>
             <input type="submit" value="제출">
         </form>
+
+        <button id="feedback-button" onclick="openPopup()">기능제안 및 버그신고</button>
         {% if user.id == 'admin' %}
-            <a href="{{ url_for('download_voc') }}" class="download-btn" style="float: right;">VOC JSON 다운로드</a>
+            <button id="download-users-button" onclick="window.location.href='{{ url_for('download_users') }}'">USER 목록 다운로드</button>
         {% endif %}
+
+        <div id="voc-popup" class="popup">
+            <div class="popup-header">
+                <h2>기능제안 및 버그신고</h2>
+                <span class="close" onclick="closePopup()">&times;</span>
+            </div>
+            <form action="/submit_voc" method="POST" class="voc-container">
+                <label for="voc_type">유형:</label>
+                <select id="voc_type" name="voc_type" required>
+                    <option value="Feature Suggestion">기능 제안</option>
+                    <option value="Bug Report">버그 신고</option>
+                </select><br>
+                <label for="voc_content">내용:</label>
+                <textarea id="voc_content" name="voc_content" rows="4" required></textarea><br>
+                <input type="submit" value="제출">
+            </form>
+            {% if user.id == 'admin' %}
+                <a href="{{ url_for('download_voc') }}" class="download-btn" style="float: right;">VOC JSON 다운로드</a>
+            {% endif %}
+        </div>
+        <div id="voc-popup-overlay" class="popup-overlay" onclick="closePopup()"></div>
     </div>
-    <div id="voc-popup-overlay" class="popup-overlay" onclick="closePopup()"></div>
 
     <div class="container">
         <div class="title-container">
@@ -523,5 +447,9 @@
         </div>
     </div>
 
+    <div class="chart-container">
+        <h2 class="chart-title">Category Distribution (Total: {{ questions | length }})</h2>
+        <img src="data:image/png;base64,{{ chart_base64 }}" alt="Category Distribution">
+    </div>
 </body>
 </html>
