@@ -441,7 +441,6 @@
     {% endif %}
 
 
-<<<<<<< HEAD
     <form action="/submit" method="POST" class="form-container">
         <label>
             <input type="radio" name="question_type" value="multiple" onclick="showForm()" {% if last_type=='multiple'
@@ -506,104 +505,6 @@
                 <h4>정답</h4>
             </div>
         </div>
-=======
-   <form action="/submit" method="POST" enctype="multipart/form-data" class="form-container">
-
-       <label>
-           <input type="radio" name="question_type" value="multiple" onclick="showForm()" {% if last_type == 'multiple' or last_type is none %}checked{% endif %}> 객관식
-       </label>
-       <label>
-           <input type="radio" name="question_type" value="subjective" onclick="showForm()" {% if last_type == 'subjective' %}checked{% endif %}> 주관식
-       </label>
-
-
-       <div id="multiple_choice" style="display: {% if last_type == 'multiple' or last_type is none %}block{% else %}none{% endif %};">
-           <h3>객관식 문제</h3>
-           <label>문제: 
-            <button type="button" onclick="document.getElementById('question_image').click()">이미지 업로드</button>
-            <input type="file" id="question_image" name="question_image" style="display:none" accept="image/*">
-            <img id="question_image_preview" src="#" alt="이미지 미리보기" style="display:none; width: 100px; height: 100px;">
-            <textarea name="mc_question" rows="3" required></textarea>
-        </label><br>
-        <script>
-            document.getElementById('question_image').onchange = function(event) {
-                var reader = new FileReader();
-                reader.onload = function(){
-                    var output = document.getElementById('question_image_preview');
-                    output.src = reader.result;
-                    output.style.display = 'block';
-                };
-                reader.readAsDataURL(event.target.files[0]);
-            };
-        </script>
-<div id="choices">
-    <div>
-        <label>1. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label>
-        <button type="button" onclick="document.getElementById('mc_choice_image_1').click()">이미지 업로드</button>
-        <input type="file" id="mc_choice_image_1" name="mc_choice_images[]" style="display:none" accept="image/*">
-        <img id="mc_choice_image_preview_1" src="#" alt="이미지 미리보기" style="display:none; width: 100px; height: 100px;">
-    </div>
-    <div>
-        <label>2. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label>
-        <button type="button" onclick="document.getElementById('mc_choice_image_2').click()">이미지 업로드</button>
-        <input type="file" id="mc_choice_image_2" name="mc_choice_images[]" style="display:none" accept="image/*">
-        <img id="mc_choice_image_preview_2" src="#" alt="이미지 미리보기" style="display:none; width: 100px; height: 100px;">
-    </div>
-    <div>
-        <label>3. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label>
-        <button type="button" onclick="document.getElementById('mc_choice_image_3').click()">이미지 업로드</button>
-        <input type="file" id="mc_choice_image_3" name="mc_choice_images[]" style="display:none" accept="image/*">
-        <img id="mc_choice_image_preview_3" src="#" alt="이미지 미리보기" style="display:none; width: 100px; height: 100px;">
-    </div>
-    <div>
-        <label>4. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()" required></textarea></label>
-        <button type="button" onclick="document.getElementById('mc_choice_image_4').click()">이미지 업로드</button>
-        <input type="file" id="mc_choice_image_4" name="mc_choice_images[]" style="display:none" accept="image/*">
-        <img id="mc_choice_image_preview_4" src="#" alt="이미지 미리보기" style="display:none; width: 100px; height: 100px;">
-    </div>
-</div>
-<script>
-    for (let i = 1; i <= 4; i++) {
-        document.getElementById(`mc_choice_image_${i}`).onchange = function(event) {
-            var reader = new FileReader();
-            reader.onload = function(){
-                var output = document.getElementById(`mc_choice_image_preview_${i}`);
-                output.src = reader.result;
-                output.style.display = 'block';
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        };
-    }
-</script>
-
-           <button type="button" onclick="addChoice()">보기 추가</button>
-           <button type="button" onclick="removeChoice()">보기 제거</button><br>
-           <div id="mc_answers"><h4>정답</h4></div>
-       </div>
-
-
-       <div id="subjective" style="display: {% if last_type == 'subjective' %}block{% else %}none{% endif %};">
-           <h3>주관식 문제</h3>
-           <label>문제: <textarea name="sub_question" rows="3" required></textarea></label><br>
-           <label>정답: 
-            <button type="button" onclick="document.getElementById('sub_answer_image').click()">이미지 업로드</button>
-            <input type="file" id="sub_answer_image" name="sub_answer_image" style="display:none" accept="image/*">
-            <img id="sub_answer_image_preview" src="#" alt="이미지 미리보기" style="display:none; width: 100px; height: 100px;">
-            <textarea name="sub_answer" rows="3" required></textarea>
-        </label><br>
-        <script>
-            document.getElementById('sub_answer_image').onchange = function(event) {
-                var reader = new FileReader();
-                reader.onload = function(){
-                    var output = document.getElementById('sub_answer_image_preview');
-                    output.src = reader.result;
-                    output.style.display = 'block';
-                };
-                reader.readAsDataURL(event.target.files[0]);
-            };
-        </script>
-       </div>
->>>>>>> 8c43207 (image upload function add)
 
 
         <div id="subjective" style="display: {% if last_type == 'subjective' %}block{% else %}none{% endif %};">
@@ -699,7 +600,6 @@
     <div id="voc-popup-overlay" class="popup-overlay" onclick="closePopup()"></div>
 
 
-<<<<<<< HEAD
     <div class="container">
         <div class="title-container">
             <h2>문제 목록</h2>
@@ -769,67 +669,6 @@
         </div>
 
     </div>
-=======
-   <div class="container">
-       <div class="title-container">
-           <h2>문제 목록</h2>
-           {% if user.id == 'admin' %}
-               <a href="{{ url_for('download') }}" class="download-btn">JSON 다운로드</a>
-           {% endif %}
-       </div>
-       <div class="question-count">문제 수: {{ questions | length }}</div> <br> <!-- 문제 수 표시 -->
-       <div class="questions-list">
-        {% if questions %}
-            {% for question in questions %}
-                <div class="question">
-                    <p><strong>ID:</strong> {{ question.ID }}</p>
-                    <p><strong>유형:</strong> {{ question.Type }}</p>
-                    <p><strong>문제:</strong> {{ question.Question }}</p>
-                    {% if question.Type == 'multiple' %}
-                    <img src="{{ url_for('static', filename='image_data/img_question_' ~ question.ID ~ '.png') }}" alt="문제 이미지" style="width: 100px; height: 100px;">
-                    {% endif %}
-                    {% if question.Choices %}
-                        <p><strong>보기:</strong></p>
-                        <ul>
-                            {% for choice in question.Choices %}
-                                <li>{{ choice }}</li>
-                                <img src="{{ url_for('static', filename='image_data/img_choice_' ~ loop.index + '_' + question.ID ~ '.png') }}" alt="보기 이미지" style="width: 100px; height: 100px;">
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                    <p><strong>정답:</strong>
-                        {% if question.Answers %}
-                            <ul>
-                                {% for answer in question.Answers %}
-                                    <li>{{ answer }}</li>
-                                {% endfor %}
-                            </ul>
-                            <img src="{{ url_for('static', filename='image_data/img_answer_' ~ question.ID ~ '.png') }}" alt="정답 이미지" style="width: 100px; height: 100px;">
-                        {% else %}
-                            {{ question.Answer }}
-                        {% endif %}
-                    </p>
-                    <p><strong>대분류:</strong> {{ question.Category.main if question.Category else '' }}</p>
-                    <p><strong>중분류:</strong> {{ question.Category.sub if question.Category else '' }}</p>
-                    <p><strong>소분류:</strong> {{ question.Category.minor if question.Category else '' }}</p>
-                    <p><strong>태그:</strong> {{ question.Tags }}</p>
-                    <p><strong>제출자 ID:</strong> {{ question.SubmitterID }}</p>
-                    <form action="{{ url_for('edit_question', question_id=question.ID) }}" method="GET" style="display:inline;">
-                        <button type="submit">수정</button>
-                    </form>
-                    <form action="{{ url_for('delete_question', question_id=question.ID) }}" method="POST" style="display:inline;">
-                        <button type="submit">삭제</button>
-                    </form>
-                    <hr>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>아직 제출된 질문이 없습니다.</p>
-        {% endif %}
-    </div>
-    
-   </div>
->>>>>>> 8c43207 (image upload function add)
 
 
     <div class="chart-container">
