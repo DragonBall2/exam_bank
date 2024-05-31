@@ -7,6 +7,7 @@ import matplotlib.font_manager as fm
 from io import BytesIO
 import base64
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -85,40 +86,36 @@ def autopct_format(values):
 
 
 def generate_category_pie_chart(data):
-   category_count = {}
-   total_questions = len(data)
-   for question in data:
-       if 'Category' in question and 'main' in question['Category']:
-           category = question['Category']['main']
-           if category in category_count:
-               category_count[category] += 1
-           else:
-               category_count[category] = 1
+    category_count = {}
+    total_questions = len(data)
+    for question in data:
+        if 'Category' in question and 'main' in question['Category']:
+            category = question['Category']['main'] if question['Category']['main'] else '미분류'
+            if category in category_count:
+                category_count[category] += 1
+            else:
+                category_count[category] = 1
 
+    labels = list(category_count.keys())
+    sizes = list(category_count.values())
 
-   labels = list(category_count.keys())
-   sizes = list(category_count.values())
+    fontprop = fm.FontProperties(fname=FONT_PATH, size=12)
 
+    plt.figure(figsize=(6, 6))
+    plt.pie(sizes, labels=labels, autopct=autopct_format(sizes), startangle=140)
 
-   fontprop = fm.FontProperties(fname=FONT_PATH, size=12)
+    # 라벨에 폰트 적용
+    for label in plt.gca().texts:
+        label.set_fontproperties(fontprop)
 
+    plt.tight_layout()
+    img = BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    img_base64 = base64.b64encode(img.getvalue()).decode()
+    plt.close()
+    return img_base64
 
-   plt.figure(figsize=(6, 6))
-   plt.pie(sizes, labels=labels, autopct=autopct_format(sizes), startangle=140)
-
-
-   # 라벨에 폰트 적용
-   for label in plt.gca().texts:
-       label.set_fontproperties(fontprop)
-
-
-   plt.tight_layout()
-   img = BytesIO()
-   plt.savefig(img, format='png')
-   img.seek(0)
-   img_base64 = base64.b64encode(img.getvalue()).decode()
-   plt.close()
-   return img_base64
 
 
 
@@ -126,25 +123,35 @@ def generate_category_pie_chart(data):
 @app.route('/')
 @login_required
 def index():
-   with open(DATA_FILE, 'r', encoding='utf-8') as f:
-       data = json.load(f)
-   if current_user.id == 'admin':
-       user_questions = data
-   else:
-       user_questions = [q for q in data if q['SubmitterID'] == current_user.id]
+    with open(DATA_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    if current_user.id == 'admin':
+        user_questions = data
+    else:
+        user_questions = [q for q in data if q['SubmitterID'] == current_user.id]
+
+    last_type = request.cookies.get('last_type')
+    last_category = {
+        'main': request.cookies.get('last_main_category', ''),
+        'sub': request.cookies.get('last_sub_category', ''),
+        'minor': request.cookies.get('last_minor_category', '')
+    }
+    last_tags = request.cookies.get('last_tags')
+    last_source = request.cookies.get('last_source', '')
+
+    for question in user_questions:
+        if 'Source' not in question:
+            question['Source'] = '출처 없음'
+        if 'SubmissionTime' not in question:
+            question['SubmissionTime'] = 'N/A'
+        if 'LastModifiedTime' not in question or not question['LastModifiedTime']:
+            question['LastModifiedTime'] = '수정되지 않음'
+
+    chart_base64 = generate_category_pie_chart(data)  # 전체 문제 데이터 사용
+    return render_template('index.html', questions=user_questions, user=current_user, last_type=last_type, last_category=last_category, last_tags=last_tags, last_source=last_source, chart_base64=chart_base64, total_questions=len(data))
 
 
-   last_type = request.cookies.get('last_type')
-   last_category = {
-       'main': request.cookies.get('last_main_category', ''),
-       'sub': request.cookies.get('last_sub_category', ''),
-       'minor': request.cookies.get('last_minor_category', '')
-   }
-   last_tags = request.cookies.get('last_tags')
 
-
-   chart_base64 = generate_category_pie_chart(user_questions)
-   return render_template('index.html', questions=user_questions, user=current_user, last_type=last_type, last_category=last_category, last_tags=last_tags, chart_base64=chart_base64)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -203,112 +210,106 @@ def logout():
 
 @app.route('/submit', methods=['POST'])
 @login_required
+
 def submit_question():
-   question_type = request.form['question_type']
+    question_type = request.form['question_type']
   
-   if (question_type == 'multiple'):
-       question = request.form['mc_question']
-       choices = request.form.getlist('mc_choices[]')
-       answers = request.form.getlist('mc_answers[]')
-   else:
-       question = request.form['sub_question']
-       answer = request.form['sub_answer']
-       choices = None
-       answers = [answer]
+    if question_type == 'multiple':
+        question = request.form['mc_question']
+        choices = request.form.getlist('mc_choices[]')
+        answers = request.form.getlist('mc_answers[]')
+    else:
+        question = request.form['sub_question']
+        answer = request.form['sub_answer']
+        choices = None
+        answers = [answer]
+
+    main_category = request.form['main_category']
+    sub_category = request.form['sub_category']
+    minor_category = request.form['minor_category']
+    source = request.form['source']
+    tags = request.form['tags']
+    submission_time = datetime.now().isoformat()
+    
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        new_id = max([item['ID'] for item in data], default=0) + 1 if data else 1
+        new_data = {
+            'ID': new_id,
+            'Type': question_type,
+            'Question': question,
+            'Choices': choices,
+            'Answers': answers,
+            'SubmitterID': current_user.id,
+            'Category': {
+                'main': main_category,
+                'sub': sub_category,
+                'minor': minor_category
+            },
+            'Source': source,
+            'Tags': tags,
+            'SubmissionTime': submission_time,
+            'LastModifiedTime': ''
+        }
+        data.append(new_data)
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        flash('Question successfully submitted!', 'success')
+        response = redirect(url_for('index'))
+        response.set_cookie('last_type', question_type)
+        response.set_cookie('last_main_category', main_category)
+        response.set_cookie('last_sub_category', sub_category)
+        response.set_cookie('last_minor_category', minor_category)
+        response.set_cookie('last_source', source)
+        response.set_cookie('last_tags', tags)
+        return response
+    except Exception as e:
+        flash(f'An error occurred while submitting the question: {e}', 'error')
+    return redirect(url_for('index'))
 
 
-   main_category = request.form['main_category']
-   sub_category = request.form['sub_category']
-   minor_category = request.form['minor_category']
-   tags = request.form['tags']
-
-
-   try:
-       with open(DATA_FILE, 'r', encoding='utf-8') as f:
-           data = json.load(f)
-
-
-       new_id = max([item['ID'] for item in data], default=0) + 1 if data else 1
-
-
-       new_data = {
-           'ID': new_id,
-           'Type': question_type,
-           'Question': question,
-           'Choices': choices,
-           'Answers': answers,
-           'SubmitterID': current_user.id,
-           'Category': {
-               'main': main_category,
-               'sub': sub_category,
-               'minor': minor_category
-           },
-           'Tags': tags
-       }
-
-
-       data.append(new_data)
-
-
-       with open(DATA_FILE, 'w', encoding='utf-8') as f:
-           json.dump(data, f, ensure_ascii=False, indent=4)
-
-
-       flash('Question successfully submitted!', 'success')
-       response = redirect(url_for('index'))
-       response.set_cookie('last_type', question_type)
-       response.set_cookie('last_main_category', main_category)
-       response.set_cookie('last_sub_category', sub_category)
-       response.set_cookie('last_minor_category', minor_category)
-       response.set_cookie('last_tags', tags)
-       return response
-   except Exception as e:
-       flash(f'An error occurred while submitting the question: {e}', 'error')
-
-
-   return redirect(url_for('index'))
 
 
 @app.route('/edit/<int:question_id>', methods=['GET', 'POST'])
 @login_required
 def edit_question(question_id):
-   with open(DATA_FILE, 'r', encoding='utf-8') as f:
-       data = json.load(f)
-   question = next((q for q in data if q['ID'] == question_id and (q['SubmitterID'] == current_user.id or current_user.id == 'admin')), None)
-   if question is None:
-       flash('Question not found or you do not have permission to edit it.', 'error')
-       return redirect(url_for('index'))
+    with open(DATA_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    question = next((q for q in data if q['ID'] == question_id and (q['SubmitterID'] == current_user.id or current_user.id == 'admin')), None)
+    if question is None:
+        flash('Question not found or you do not have permission to edit it.', 'error')
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        question_type = request.form['question_type']
+        if question_type == 'multiple':
+            question['Question'] = request.form['mc_question']
+            question['Choices'] = request.form.getlist('mc_choices[]')
+            question['Answers'] = request.form.getlist('mc_answers[]')
+        else:
+            question['Question'] = request.form['sub_question']
+            question['Answers'] = [request.form['sub_answer']]
+            question['Choices'] = None
+
+        question['Category'] = {
+            'main': request.form['main_category'],
+            'sub': request.form['sub_category'],
+            'minor': request.form['minor_category']
+        }
+        question['Source'] = request.form['source']
+        question['Tags'] = request.form['tags']
+        question['LastModifiedTime'] = datetime.now().isoformat()
+
+        with open(DATA_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+
+        flash('Question successfully updated!', 'success')
+        return redirect(url_for('index'))
+
+    return render_template('edit_question.html', question=question)
 
 
-   if request.method == 'POST':
-       question_type = request.form['question_type']
-       if question_type == 'multiple':
-           question['Question'] = request.form['mc_question']
-           question['Choices'] = request.form.getlist('mc_choices[]')
-           question['Answers'] = request.form.getlist('mc_answers[]')
-       else:
-           question['Question'] = request.form['sub_question']
-           question['Answers'] = [request.form['sub_answer']]
-           question['Choices'] = None
-
-
-       question['Category'] = {
-           'main': request.form['main_category'],
-           'sub': request.form['sub_category'],
-           'minor': request.form['minor_category']
-       }
-       question['Tags'] = request.form['tags']
-
-
-       with open(DATA_FILE, 'w', encoding='utf-8') as f:
-           json.dump(data, f, ensure_ascii=False, indent=4)
-
-
-       flash('Question successfully updated!', 'success')
-       return redirect(url_for('index'))
-
-
-   return render_template('edit_question.html', question=question)
 
 
 @app.route('/delete/<int:question_id>', methods=['POST'])

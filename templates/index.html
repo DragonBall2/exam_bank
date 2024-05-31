@@ -404,6 +404,7 @@
        </label><br>
 
 
+       <label>출처: <input type="text" name="source" value="{{ request.cookies.get('last_source', '') }}"></label><br>
        <label>태그: <textarea name="tags" rows="3">{{ last_tags }}</textarea></label><br>
 
 
@@ -449,44 +450,47 @@
        <div class="question-count">문제 수: {{ questions | length }}</div> <br> <!-- 문제 수 표시 -->
        <div class="questions-list">
            {% if questions %}
-               {% for question in questions %}
-                   <div class="question">
-                       <p><strong>ID:</strong> {{ question.ID }}</p>
-                       <p><strong>유형:</strong> {{ question.Type }}</p>
-                       <p><strong>문제:</strong> {{ question.Question }}</p>
-                       {% if question.Choices %}
-                           <p><strong>보기:</strong></p>
-                           <ul>
-                               {% for choice in question.Choices %}
-                                   <li>{{ choice }}</li>
-                               {% endfor %}
-                           </ul>
-                       {% endif %}
-                       <p><strong>정답:</strong>
-                           {% if question.Answers %}
-                               <ul>
-                                   {% for answer in question.Answers %}
-                                       <li>{{ answer }}</li>
-                                   {% endfor %}
-                               </ul>
-                           {% else %}
-                               {{ question.Answer }}
-                           {% endif %}
-                       </p>
-                       <p><strong>대분류:</strong> {{ question.Category.main if question.Category else '' }}</p>
-                       <p><strong>중분류:</strong> {{ question.Category.sub if question.Category else '' }}</p>
-                       <p><strong>소분류:</strong> {{ question.Category.minor if question.Category else '' }}</p>
-                       <p><strong>태그:</strong> {{ question.Tags }}</p>
-                       <p><strong>제출자 ID:</strong> {{ question.SubmitterID }}</p>
-                       <form action="{{ url_for('edit_question', question_id=question.ID) }}" method="GET" style="display:inline;">
-                           <button type="submit">수정</button>
-                       </form>
-                       <form action="{{ url_for('delete_question', question_id=question.ID) }}" method="POST" style="display:inline;">
-                           <button type="submit">삭제</button>
-                       </form>
-                       <hr>
-                   </div>
-               {% endfor %}
+           {% for question in questions %}
+           <div class="question">
+               <p><strong>ID:</strong> {{ question.ID }}</p>
+               <p><strong>유형:</strong> {{ question.Type }}</p>
+               <p><strong>문제:</strong> {{ question.Question }}</p>
+               {% if question.Choices %}
+                   <p><strong>보기:</strong></p>
+                   <ul>
+                       {% for choice in question.Choices %}
+                           <li>{{ choice }}</li>
+                       {% endfor %}
+                   </ul>
+               {% endif %}
+               <p><strong>정답:</strong>
+                   {% if question.Answers %}
+                       <ul>
+                           {% for answer in question.Answers %}
+                               <li>{{ answer }}</li>
+                           {% endfor %}
+                       </ul>
+                   {% else %}
+                       {{ question.Answer }}
+                   {% endif %}
+               </p>
+               <p><strong>대분류:</strong> {{ question.Category.main if question.Category else '' }}</p>
+               <p><strong>중분류:</strong> {{ question.Category.sub if question.Category else '' }}</p>
+               <p><strong>소분류:</strong> {{ question.Category.minor if question.Category else '' }}</p>
+               <p><strong>출처:</strong> {{ question.Source if question.Source else '출처 없음' }}</p>
+               <p><strong>태그:</strong> {{ question.Tags }}</p>
+               <p><strong>제출자 ID:</strong> {{ question.SubmitterID }}</p>
+               <p><strong>제출 시간:</strong> {{ question.SubmissionTime if 'SubmissionTime' in question else 'N/A' }}</p>
+               <p><strong>마지막 수정 시간:</strong> {{ question.LastModifiedTime if 'LastModifiedTime' in question and question.LastModifiedTime else '수정되지 않음' }}</p>
+               <form action="{{ url_for('edit_question', question_id=question.ID) }}" method="GET" style="display:inline;">
+                   <button type="submit">수정</button>
+               </form>
+               <form action="{{ url_for('delete_question', question_id=question.ID) }}" method="POST" style="display:inline;">
+                   <button type="submit">삭제</button>
+               </form>
+               <hr>
+           </div>
+           {% endfor %}
            {% else %}
                <p>아직 제출된 질문이 없습니다.</p>
            {% endif %}
@@ -495,8 +499,8 @@
 
 
    <div class="chart-container">
-       <h2 class="chart-title">Category Distribution (Total: {{ questions | length }})</h2>
-       <img src="data:image/png;base64,{{ chart_base64 }}" alt="Category Distribution">
+    <h2 class="chart-title">출제 현황 (Total: {{ total_questions }})</h2>
+    <img src="data:image/png;base64,{{ chart_base64 }}" alt="출제 현황">
    </div>
 </body>
 </html>
