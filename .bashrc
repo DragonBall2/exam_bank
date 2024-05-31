@@ -1,5 +1,5 @@
 # 히스토리 파일의 위치
-HISTFILE=~/.bash_history
+HISTFILE=/workspaces/codespaces-blank/.bash_history
 
 # 히스토리에 저장할 명령의 최대 개수
 HISTSIZE=1000
