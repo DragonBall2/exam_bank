@@ -37,29 +37,42 @@
         }
 
         let originalBlanks = [];
+        let previousAnswers = [];
+        let initialQuestion = '';
 
         function generateAnswerFields() {
             const textarea = document.getElementsByName('fib_question')[0];
             const question = textarea.value;
             const blankMatches = question.match(/{\s*}/g) || [];
-            originalBlanks = blankMatches.map(blank => blank.length - 2); // 원래 공백 수 저장
+            const blanks = blankMatches.map(blank => blank.length - 2); // 원래 공백 수 저장
             const answerDiv = document.querySelector('#fib_answers');
+
+            previousAnswers = Array.from(document.getElementsByName('fib_answer[]')).map(input => input.value);
+
             if (answerDiv) {
                 answerDiv.innerHTML = '';
                 let updatedQuestion = question;
-                for (let i = 0; i < blankMatches.length; i++) {
+                let currentAnswerIndex = 0;
+
+                for (let i = 0; i < blanks.length; i++) {
                     const label = document.createElement('label');
                     label.innerText = `정답 ${i + 1}: `;
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.name = 'fib_answer[]';
                     input.required = true;
+                    if (previousAnswers[currentAnswerIndex]) {
+                        input.value = previousAnswers[currentAnswerIndex++];
+                    }
                     answerDiv.appendChild(label);
                     answerDiv.appendChild(input);
                     answerDiv.appendChild(document.createElement('br'));
 
                     updatedQuestion = updatedQuestion.replace(/{\s*}/, `{Blank#${i + 1}}`);
                 }
+
+                originalBlanks = blanks;
+                initialQuestion = textarea.value;
                 textarea.value = updatedQuestion;
                 document.querySelector('button[onclick="generateAnswerFields()"]').disabled = true; // 버튼 비활성화
             } else {
@@ -77,10 +90,20 @@
             document.querySelector('button[onclick="generateAnswerFields()"]').disabled = false; // 버튼 활성화
         }
 
+        function enableGenerateButton() {
+            const textarea = document.getElementsByName('fib_question')[0];
+            if (textarea.value === initialQuestion) {
+                document.querySelector('button[onclick="generateAnswerFields()"]').disabled = true;
+            } else {
+                document.querySelector('button[onclick="generateAnswerFields()"]').disabled = false;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             showForm();
             const textarea = document.getElementsByName('fib_question')[0];
             textarea.addEventListener('focus', resetBlanks);
+            textarea.addEventListener('input', enableGenerateButton);
         });
 
 
