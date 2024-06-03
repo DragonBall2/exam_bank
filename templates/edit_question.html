@@ -61,6 +61,7 @@
                     updatedQuestion = updatedQuestion.replace(/{\s*}/, `{Blank#${i + 1}}`);
                 }
                 textarea.value = updatedQuestion;
+                document.querySelector('button[onclick="generateAnswerFields()"]').disabled = true; // 버튼 비활성화
             } else {
                 console.error("Element with id 'fib_answers' not found.");
             }
@@ -73,6 +74,7 @@
                 const blankCount = originalBlanks[i++];
                 return `{${' '.repeat(blankCount)}}`;
             });
+            document.querySelector('button[onclick="generateAnswerFields()"]').disabled = false; // 버튼 활성화
         }
 
         document.addEventListener('DOMContentLoaded', () => {
