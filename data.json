@@ -584,5 +584,45 @@
         "Tags": "None",
         "SubmissionTime": "2024-06-03T11:45:28.205505",
         "LastModifiedTime": ""
+    },
+    {
+        "ID": 28,
+        "Type": "fill_in_the_blank",
+        "Question": "{}",
+        "Choices": null,
+        "Answers": [
+            "dfawfd"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-2"
+        },
+        "Source": "dasf",
+        "Tags": "None",
+        "SubmissionTime": "2024-06-03T11:58:14.764579",
+        "LastModifiedTime": ""
+    },
+    {
+        "ID": 29,
+        "Type": "fill_in_the_blank",
+        "Question": "{} {    } {ㄹ}   {                          }",
+        "Choices": null,
+        "Answers": [
+            "ㅇㄹ",
+            "ㅁㅇㄹ",
+            "ㅁㄴㅇㄹ"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-2"
+        },
+        "Source": "dasf",
+        "Tags": "None",
+        "SubmissionTime": "2024-06-03T12:24:21.954002",
+        "LastModifiedTime": ""
     }
 ]

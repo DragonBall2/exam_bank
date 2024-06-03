@@ -28,14 +28,18 @@
             document.getElementsByName('fib_answer[]').forEach(field => field.disabled = type !== 'fill_in_the_blank');
         }
 
+        let originalBlanks = [];
+
         function generateAnswerFields() {
-            const question = document.getElementsByName('fib_question')[0].value;
-            const blanks = (question.match(/{}/g) || []).length;
+            const textarea = document.getElementsByName('fib_question')[0];
+            const question = textarea.value;
+            const blankMatches = question.match(/{\s*}/g) || [];
+            originalBlanks = blankMatches.map(blank => blank.length - 2); // 원래 공백 수 저장
             const answerDiv = document.querySelector('#fib_answers');
             if (answerDiv) {
                 answerDiv.innerHTML = '';
-
-                for (let i = 0; i < blanks; i++) {
+                let updatedQuestion = question;
+                for (let i = 0; i < blankMatches.length; i++) {
                     const label = document.createElement('label');
                     label.innerText = `정답 ${i + 1}: `;
                     const input = document.createElement('input');
@@ -45,14 +49,28 @@
                     answerDiv.appendChild(label);
                     answerDiv.appendChild(input);
                     answerDiv.appendChild(document.createElement('br'));
+
+                    updatedQuestion = updatedQuestion.replace(/{\s*}/, `{Blank#${i + 1}}`);
                 }
+                textarea.value = updatedQuestion;
             } else {
                 console.error("Element with id 'fib_answers' not found.");
             }
         }
 
+        function resetBlanks() {
+            const textarea = document.getElementsByName('fib_question')[0];
+            let i = 0;
+            textarea.value = textarea.value.replace(/{Blank#\d+}/g, (match) => {
+                const blankCount = originalBlanks[i++];
+                return `{${' '.repeat(blankCount)}}`;
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             showForm();
+            const textarea = document.getElementsByName('fib_question')[0];
+            textarea.addEventListener('focus', resetBlanks);
         });
 
         function updateAnswerOptions() {
