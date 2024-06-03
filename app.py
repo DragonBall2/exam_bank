@@ -218,11 +218,15 @@ def submit_question():
         question = request.form['mc_question']
         choices = request.form.getlist('mc_choices[]')
         answers = request.form.getlist('mc_answers[]')
-    else:
+    elif question_type == 'subjective':
         question = request.form['sub_question']
         answer = request.form['sub_answer']
         choices = None
         answers = [answer]
+    elif question_type == 'fill_in_the_blank':
+        question = request.form['fib_question']
+        answers = request.form.getlist('fib_answer[]')
+        choices = None
 
     main_category = request.form['main_category']
     sub_category = request.form['sub_category']
@@ -271,6 +275,8 @@ def submit_question():
 
 
 
+
+
 @app.route('/edit/<int:question_id>', methods=['GET', 'POST'])
 @login_required
 def edit_question(question_id):
@@ -287,9 +293,13 @@ def edit_question(question_id):
             question['Question'] = request.form['mc_question']
             question['Choices'] = request.form.getlist('mc_choices[]')
             question['Answers'] = request.form.getlist('mc_answers[]')
-        else:
+        elif question_type == 'subjective':
             question['Question'] = request.form['sub_question']
             question['Answers'] = [request.form['sub_answer']]
+            question['Choices'] = None
+        elif question_type == 'fill_in_the_blank':
+            question['Question'] = request.form['fib_question']
+            question['Answers'] = [request.form['fib_answer']]
             question['Choices'] = None
 
         question['Category'] = {
@@ -308,6 +318,7 @@ def edit_question(question_id):
         return redirect(url_for('index'))
 
     return render_template('edit_question.html', question=question)
+
 
 
 
