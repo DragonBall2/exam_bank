@@ -624,5 +624,148 @@
         "Tags": "None",
         "SubmissionTime": "2024-06-03T12:24:21.954002",
         "LastModifiedTime": ""
+    },
+    {
+        "ID": 30,
+        "Type": "fill_in_the_blank",
+        "Question": "{Blank#1} {Blank#2} {Blank#3} ㄻㅇㄹ",
+        "Choices": null,
+        "Answers": [
+            "1",
+            "2",
+            "3"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-2"
+        },
+        "Source": "dasf",
+        "Tags": "None",
+        "SubmissionTime": "2024-06-03T13:51:02.520196",
+        "LastModifiedTime": ""
+    },
+    {
+        "ID": 31,
+        "Type": "fill_in_the_blank",
+        "Question": "{}는 {} 이다.",
+        "Choices": null,
+        "Answers": [
+            "1",
+            "2"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-2"
+        },
+        "Source": "dasf",
+        "Tags": "None",
+        "SubmissionTime": "2024-06-03T14:06:32.739790",
+        "LastModifiedTime": ""
+    },
+    {
+        "ID": 32,
+        "Type": "fill_in_the_blank",
+        "Question": "작성예: 한국의 수도는{ }이고, 미국의 수도는 { }이다.",
+        "Choices": null,
+        "Answers": [
+            "서울",
+            "워싱턴"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-2"
+        },
+        "Source": "dasf",
+        "Tags": "None",
+        "SubmissionTime": "2024-06-03T14:14:22.255938",
+        "LastModifiedTime": ""
+    },
+    {
+        "ID": 33,
+        "Type": "fill_in_the_blank",
+        "Question": "한국의 수도는{Blank#1}이고, 미국의 수도는 {Blank#2}이다.)",
+        "Choices": null,
+        "Answers": {
+            "Blank#1": "서울",
+            "Blank#2": "워싱턴"
+        },
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-2"
+        },
+        "Tags": "None",
+        "Source": "dasf",
+        "SubmissionTime": "2024-06-03 14:24:21",
+        "LastModifiedTime": ""
+    },
+    {
+        "ID": 34,
+        "Type": "fill_in_the_blank",
+        "Question": "ㅁㄴㅇㄻㄴㄹㅇ",
+        "Choices": null,
+        "Answers": {},
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-2"
+        },
+        "Tags": "None",
+        "Source": "dasf",
+        "SubmissionTime": "2024-06-03 14:52:05",
+        "LastModifiedTime": ""
+    },
+    {
+        "ID": 35,
+        "Type": "fill_in_the_blank",
+        "Question": "{Blank#1}{Blank#2}",
+        "Choices": null,
+        "Answers": {
+            "Blank#1": "adf",
+            "Blank#2": "adfaf"
+        },
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-2"
+        },
+        "Tags": "None",
+        "Source": "dasf",
+        "SubmissionTime": "2024-06-03 14:52:20",
+        "LastModifiedTime": "2024-06-03 14:56:08"
+    },
+    {
+        "ID": 36,
+        "Type": "multiple",
+        "Question": "adf",
+        "Choices": [
+            "awf",
+            "daf",
+            "adfas",
+            "sadfasfd"
+        ],
+        "Answers": [
+            "2",
+            "3"
+        ],
+        "SubmitterID": "yjoo.kwon",
+        "Category": {
+            "main": "대분류1",
+            "sub": "중분류1-1",
+            "minor": "소분류1-1-2"
+        },
+        "Tags": "None",
+        "Source": "dasf",
+        "SubmissionTime": "2024-06-03 14:56:45",
+        "LastModifiedTime": ""
     }
 ]

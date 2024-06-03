@@ -210,10 +210,9 @@ def logout():
 
 @app.route('/submit', methods=['POST'])
 @login_required
-
 def submit_question():
     question_type = request.form['question_type']
-  
+    
     if question_type == 'multiple':
         question = request.form['mc_question']
         choices = request.form.getlist('mc_choices[]')
@@ -225,20 +224,22 @@ def submit_question():
         answers = [answer]
     elif question_type == 'fill_in_the_blank':
         question = request.form['fib_question']
-        answers = request.form.getlist('fib_answer[]')
+        raw_answers = request.form.getlist('fib_answer[]')
         choices = None
+        answers = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
 
     main_category = request.form['main_category']
     sub_category = request.form['sub_category']
     minor_category = request.form['minor_category']
-    source = request.form['source']
     tags = request.form['tags']
-    submission_time = datetime.now().isoformat()
-    
+    source = request.form['source']
+
     try:
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
+
         new_id = max([item['ID'] for item in data], default=0) + 1 if data else 1
+
         new_data = {
             'ID': new_id,
             'Type': question_type,
@@ -251,31 +252,29 @@ def submit_question():
                 'sub': sub_category,
                 'minor': minor_category
             },
-            'Source': source,
             'Tags': tags,
-            'SubmissionTime': submission_time,
+            'Source': source,
+            'SubmissionTime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'LastModifiedTime': ''
         }
+
         data.append(new_data)
+
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
+
         flash('Question successfully submitted!', 'success')
         response = redirect(url_for('index'))
         response.set_cookie('last_type', question_type)
         response.set_cookie('last_main_category', main_category)
         response.set_cookie('last_sub_category', sub_category)
         response.set_cookie('last_minor_category', minor_category)
-        response.set_cookie('last_source', source)
         response.set_cookie('last_tags', tags)
         return response
     except Exception as e:
         flash(f'An error occurred while submitting the question: {e}', 'error')
+
     return redirect(url_for('index'))
-
-
-
-
-
 
 
 @app.route('/edit/<int:question_id>', methods=['GET', 'POST'])
@@ -300,7 +299,8 @@ def edit_question(question_id):
             question['Choices'] = None
         elif question_type == 'fill_in_the_blank':
             question['Question'] = request.form['fib_question']
-            question['Answers'] = [request.form['fib_answer']]
+            raw_answers = request.form.getlist('fib_answer[]')
+            question['Answers'] = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
             question['Choices'] = None
 
         question['Category'] = {
@@ -308,9 +308,9 @@ def edit_question(question_id):
             'sub': request.form['sub_category'],
             'minor': request.form['minor_category']
         }
-        question['Source'] = request.form['source']
         question['Tags'] = request.form['tags']
-        question['LastModifiedTime'] = datetime.now().isoformat()
+        question['Source'] = request.form['source']
+        question['LastModifiedTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)

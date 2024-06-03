@@ -47,7 +47,11 @@
             const blanks = blankMatches.map(blank => blank.length - 2); // 원래 공백 수 저장
             const answerDiv = document.querySelector('#fib_answers');
 
-            previousAnswers = Array.from(document.getElementsByName('fib_answer[]')).map(input => input.value);
+            // 기존 매핑을 저장
+            const existingAnswers = Array.from(document.getElementsByName('fib_answer[]')).map(input => input.value);
+
+            // 매핑을 유지하며 삭제된 blank에 대응하는 정답 제거
+            previousAnswers = previousAnswers.filter((_, index) => index < blanks.length);
 
             if (answerDiv) {
                 answerDiv.innerHTML = '';
@@ -56,14 +60,17 @@
 
                 for (let i = 0; i < blanks.length; i++) {
                     const label = document.createElement('label');
-                    label.innerText = `정답 ${i + 1}: `;
+                    label.innerText = `Blank#${i + 1}: `;
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.name = 'fib_answer[]';
                     input.required = true;
-                    if (previousAnswers[currentAnswerIndex]) {
-                        input.value = previousAnswers[currentAnswerIndex++];
+                    if (previousAnswers[currentAnswerIndex] !== undefined) {
+                        input.value = previousAnswers[currentAnswerIndex];
+                    } else if (existingAnswers[currentAnswerIndex] !== undefined) {
+                        input.value = existingAnswers[currentAnswerIndex];
                     }
+                    currentAnswerIndex++;
                     answerDiv.appendChild(label);
                     answerDiv.appendChild(input);
                     answerDiv.appendChild(document.createElement('br'));
@@ -324,8 +331,7 @@
             <div id="fill_in_the_blank"
                 style="display: {% if question.Type == 'fill_in_the_blank' %}block{% else %}none{% endif %};">
                 <h3>빈칸 채우기 문제</h3>
-                <label>문제: <textarea name="fib_question" rows="3" required
-                        oninput="updateAnswerFields()">{{ question.Question }}</textarea></label><br>
+                <label>문제:  (작성예: 한국의 수도는{ }이고, 미국의 수도는 { }이다.)<textarea name="fib_question" rows="3" required>{{ question.Question }}</textarea></label><br>
                 <button type="button" onclick="generateAnswerFields()">정답 입력</button><br>
                 <div id="fib_answers">
                     {% if question.Type == 'fill_in_the_blank' %}

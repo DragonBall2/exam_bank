@@ -39,7 +39,11 @@
             const blanks = blankMatches.map(blank => blank.length - 2); // 원래 공백 수 저장
             const answerDiv = document.querySelector('#fib_answers');
 
-            previousAnswers = Array.from(document.getElementsByName('fib_answer[]')).map(input => input.value);
+            // 기존 매핑을 저장
+            const existingAnswers = Array.from(document.getElementsByName('fib_answer[]')).map(input => input.value);
+
+            // 매핑을 유지하며 삭제된 blank에 대응하는 정답 제거
+            previousAnswers = previousAnswers.filter((_, index) => index < blanks.length);
 
             if (answerDiv) {
                 answerDiv.innerHTML = '';
@@ -48,14 +52,17 @@
 
                 for (let i = 0; i < blanks.length; i++) {
                     const label = document.createElement('label');
-                    label.innerText = `정답 ${i + 1}: `;
+                    label.innerText = `Blank#${i + 1}: `;
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.name = 'fib_answer[]';
                     input.required = true;
-                    if (previousAnswers[currentAnswerIndex]) {
-                        input.value = previousAnswers[currentAnswerIndex++];
+                    if (previousAnswers[currentAnswerIndex] !== undefined) {
+                        input.value = previousAnswers[currentAnswerIndex];
+                    } else if (existingAnswers[currentAnswerIndex] !== undefined) {
+                        input.value = existingAnswers[currentAnswerIndex];
                     }
+                    currentAnswerIndex++;
                     answerDiv.appendChild(label);
                     answerDiv.appendChild(input);
                     answerDiv.appendChild(document.createElement('br'));
@@ -471,7 +478,8 @@
         <div id="fill_in_the_blank"
             style="display: {% if last_type == 'fill_in_the_blank' %}block{% else %}none{% endif %};">
             <h3>빈칸 채우기 문제</h3>
-            <label>문제: <textarea name="fib_question" rows="3" required></textarea></label><br>
+            <label>문제: (작성예: 한국의 수도는{ }이고, 미국의 수도는 { }이다.)<textarea name="fib_question" rows="3"
+                    required></textarea></label><br>
             <button type="button" onclick="generateAnswerFields()">정답 입력</button><br>
             <div id="fib_answers"></div>
         </div>
@@ -555,25 +563,34 @@
                 </ul>
                 {% endif %}
                 <p><strong>정답:</strong>
-                    {% if question.Answers %}
+                    {% if question.Type == 'fill_in_the_blank' %}
+                <ul>
+                    {% if question.Answers is mapping %}
+                    {% for key, value in question.Answers.items() %}
+                    <li>{{ key }}: {{ value }}</li>
+                    {% endfor %}
+                    {% else %}
+                    {% for answer in question.Answers %}
+                    <li>{{ answer }}</li>
+                    {% endfor %}
+                    {% endif %}
+                </ul>
+                {% else %}
                 <ul>
                     {% for answer in question.Answers %}
                     <li>{{ answer }}</li>
                     {% endfor %}
                 </ul>
-                {% else %}
-                {{ question.Answer }}
                 {% endif %}
                 </p>
                 <p><strong>대분류:</strong> {{ question.Category.main if question.Category else '' }}</p>
                 <p><strong>중분류:</strong> {{ question.Category.sub if question.Category else '' }}</p>
                 <p><strong>소분류:</strong> {{ question.Category.minor if question.Category else '' }}</p>
-                <p><strong>출처:</strong> {{ question.Source if question.Source else '출처 없음' }}</p>
                 <p><strong>태그:</strong> {{ question.Tags }}</p>
+                <p><strong>출처:</strong> {{ question.Source }}</p>
                 <p><strong>제출자 ID:</strong> {{ question.SubmitterID }}</p>
-                <p><strong>제출 시간:</strong> {{ question.SubmissionTime if 'SubmissionTime' in question else 'N/A' }}</p>
-                <p><strong>마지막 수정 시간:</strong> {{ question.LastModifiedTime if 'LastModifiedTime' in question and
-                    question.LastModifiedTime else '수정되지 않음' }}</p>
+                <p><strong>제출 시간:</strong> {{ question.SubmissionTime }}</p>
+                <p><strong>마지막 수정 시간:</strong> {{ question.LastModifiedTime }}</p>
                 <form action="{{ url_for('edit_question', question_id=question.ID) }}" method="GET"
                     style="display:inline;">
                     <button type="submit">수정</button>
@@ -589,6 +606,7 @@
             <p>아직 제출된 질문이 없습니다.</p>
             {% endif %}
         </div>
+
     </div>
 
 
