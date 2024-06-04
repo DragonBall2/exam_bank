@@ -470,7 +470,7 @@
     
     
     if __name__ == '__main__':
-       app.run(debug=True)
+       app.run(debug=True,port=4444)
 
     templates/
         login.html
@@ -1403,6 +1403,7 @@
                     const textarea = document.getElementsByName('fib_question')[0];
                     textarea.addEventListener('focus', resetBlanks);
                     textarea.addEventListener('input', enableGenerateButton);
+                    resetBlanks();
                     generateAnswerFields(); // 페이지 로드 시 정답 필드 생성
                     document.querySelector('form').addEventListener('submit', validateForm);
                 });
