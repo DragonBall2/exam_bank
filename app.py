@@ -225,7 +225,7 @@ def submit_question():
     elif question_type == 'fill_in_the_blank':
         question = request.form['fib_question']
         raw_answers = request.form.getlist('fib_answer[]')
-        choices = None
+        choices = request.form.getlist('fib_others[]')
         answers = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
 
     main_category = request.form['main_category']
@@ -258,6 +258,9 @@ def submit_question():
             'LastModifiedTime': ''
         }
 
+        if question_type == 'fill_in_the_blank' and choices:
+            new_data['Answers']['others'] = choices
+
         data.append(new_data)
 
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
@@ -275,6 +278,7 @@ def submit_question():
         flash(f'An error occurred while submitting the question: {e}', 'error')
 
     return redirect(url_for('index'))
+
 
 
 @app.route('/edit/<int:question_id>', methods=['GET', 'POST'])
@@ -300,8 +304,12 @@ def edit_question(question_id):
         elif question_type == 'fill_in_the_blank':
             question['Question'] = request.form['fib_question']
             raw_answers = request.form.getlist('fib_answer[]')
+            choices = request.form.getlist('fib_others[]')
             question['Answers'] = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
-            question['Choices'] = None
+            question['Choices'] = choices
+
+            if choices:
+                question['Answers']['others'] = choices
 
         question['Category'] = {
             'main': request.form['main_category'],
@@ -319,6 +327,7 @@ def edit_question(question_id):
         return redirect(url_for('index'))
 
     return render_template('edit_question.html', question=question)
+
 
 
 
