@@ -212,7 +212,8 @@ def logout():
 @login_required
 def submit_question():
     question_type = request.form['question_type']
-    
+    choices = []
+
     if question_type == 'multiple':
         question = request.form['mc_question']
         choices = request.form.getlist('mc_choices[]')
@@ -220,13 +221,13 @@ def submit_question():
     elif question_type == 'subjective':
         question = request.form['sub_question']
         answer = request.form['sub_answer']
-        choices = None
         answers = [answer]
     elif question_type == 'fill_in_the_blank':
         question = request.form['fib_question']
         raw_answers = request.form.getlist('fib_answer[]')
-        choices = request.form.getlist('fib_others[]')
+        others = request.form.getlist('fib_others[]')
         answers = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
+        answers['others'] = others  # Add the other choices to the answers dict
 
     main_category = request.form['main_category']
     sub_category = request.form['sub_category']
@@ -258,9 +259,6 @@ def submit_question():
             'LastModifiedTime': ''
         }
 
-        if question_type == 'fill_in_the_blank' and choices:
-            new_data['Answers']['others'] = choices
-
         data.append(new_data)
 
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
@@ -280,7 +278,6 @@ def submit_question():
     return redirect(url_for('index'))
 
 
-
 @app.route('/edit/<int:question_id>', methods=['GET', 'POST'])
 @login_required
 def edit_question(question_id):
@@ -293,6 +290,7 @@ def edit_question(question_id):
 
     if request.method == 'POST':
         question_type = request.form['question_type']
+        choices = []
         if question_type == 'multiple':
             question['Question'] = request.form['mc_question']
             question['Choices'] = request.form.getlist('mc_choices[]')
@@ -304,12 +302,10 @@ def edit_question(question_id):
         elif question_type == 'fill_in_the_blank':
             question['Question'] = request.form['fib_question']
             raw_answers = request.form.getlist('fib_answer[]')
-            choices = request.form.getlist('fib_others[]')
+            others = request.form.getlist('fib_others[]')
             question['Answers'] = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
-            question['Choices'] = choices
-
-            if choices:
-                question['Answers']['others'] = choices
+            question['Answers']['others'] = others  # Update the other choices in the answers dict
+            question['Choices'] = None
 
         question['Category'] = {
             'main': request.form['main_category'],
@@ -327,6 +323,7 @@ def edit_question(question_id):
         return redirect(url_for('index'))
 
     return render_template('edit_question.html', question=question)
+
 
 
 

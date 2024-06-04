@@ -767,5 +767,29 @@
         "Source": "dasf",
         "SubmissionTime": "2024-06-03 14:56:45",
         "LastModifiedTime": ""
+    },
+    {
+        "ID": 37,
+        "Type": "fill_in_the_blank",
+        "Question": "{Blank#1}{Blank#2}{Blank#3}",
+        "Choices": [],
+        "Answers": {
+            "Blank#1": "1",
+            "Blank#2": "2",
+            "Blank#3": "3",
+            "others": [
+                "111"
+            ]
+        },
+        "SubmitterID": "admin",
+        "Category": {
+            "main": "",
+            "sub": "",
+            "minor": ""
+        },
+        "Tags": "None",
+        "Source": "",
+        "SubmissionTime": "2024-06-04 12:00:33",
+        "LastModifiedTime": ""
     }
 ]

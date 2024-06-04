@@ -8,7 +8,6 @@
     <style>
         .form-container {
             max-width: 800px;
-            /* 폼 컨테이너의 최대 너비를 설정 */
             margin: 20px auto;
             padding: 20px;
             border: 1px solid #ccc;
@@ -37,7 +36,6 @@
         }
 
         let originalBlanks = [];
-        let previousAnswers = [];
         let initialQuestion = '';
 
         function generateAnswerFields() {
@@ -48,40 +46,40 @@
             const answerDiv = document.querySelector('#fib_answers');
 
             // 기존 매핑을 저장
-            const existingAnswers = Array.from(document.getElementsByName('fib_answer[]')).map(input => input.value);
-
-            // 매핑을 유지하며 삭제된 blank에 대응하는 정답 제거
-            previousAnswers = previousAnswers.filter((_, index) => index < blanks.length);
+            const existingAnswers = window.question ? window.question.Answers : {};
+            const existingOthers = window.question && window.question.Answers.others ? window.question.Answers.others : [];
 
             if (answerDiv) {
                 answerDiv.innerHTML = '';
                 let updatedQuestion = question;
-                let currentAnswerIndex = 0;
 
-                for (let i = 0; i < blanks.length; i++) {
+                blanks.forEach((_, i) => {
                     const label = document.createElement('label');
                     label.innerText = `Blank#${i + 1}: `;
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.name = 'fib_answer[]';
                     input.required = true;
-                    if (previousAnswers[currentAnswerIndex] !== undefined) {
-                        input.value = previousAnswers[currentAnswerIndex];
-                    } else if (existingAnswers[currentAnswerIndex] !== undefined) {
-                        input.value = existingAnswers[currentAnswerIndex];
-                    }
-                    currentAnswerIndex++;
+                    input.value = existingAnswers[`Blank#${i + 1}`] || '';
                     answerDiv.appendChild(label);
                     answerDiv.appendChild(input);
                     answerDiv.appendChild(document.createElement('br'));
-
                     updatedQuestion = updatedQuestion.replace(/{\s*}/, `{Blank#${i + 1}}`);
-                }
+                });
 
                 originalBlanks = blanks;
-                initialQuestion = textarea.value;
+                initialQuestion = updatedQuestion;
                 textarea.value = updatedQuestion;
                 document.querySelector('button[onclick="generateAnswerFields()"]').disabled = true; // 버튼 비활성화
+
+                // Other choices (보기) 업데이트
+                const otherChoicesDiv = document.getElementById('other_choices');
+                otherChoicesDiv.innerHTML = '';
+                existingOthers.forEach(choice => {
+                    const newChoice = document.createElement('div');
+                    newChoice.innerHTML = `<textarea name="fib_others[]" rows="2">${choice}</textarea>`;
+                    otherChoicesDiv.appendChild(newChoice);
+                });
             } else {
                 console.error("Element with id 'fib_answers' not found.");
             }
@@ -89,9 +87,9 @@
 
         function resetBlanks() {
             const textarea = document.getElementsByName('fib_question')[0];
-            let i = 0;
             textarea.value = textarea.value.replace(/{Blank#\d+}/g, (match) => {
-                const blankCount = originalBlanks[i++];
+                const blankNumber = parseInt(match.match(/\d+/)[0], 10) - 1;
+                const blankCount = originalBlanks[blankNumber];
                 return `{${' '.repeat(blankCount)}}`;
             });
             document.querySelector('button[onclick="generateAnswerFields()"]').disabled = false; // 버튼 활성화
@@ -106,19 +104,10 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            showForm();
-            const textarea = document.getElementsByName('fib_question')[0];
-            textarea.addEventListener('focus', resetBlanks);
-            textarea.addEventListener('input', enableGenerateButton);
-        });
-
-
         function updateAnswerOptions() {
             const choices = document.getElementsByName('mc_choices[]');
             const answerDiv = document.getElementById('mc_answers');
             answerDiv.innerHTML = '<h4>정답</h4>';
-
 
             choices.forEach((choice, index) => {
                 if (choice.value.trim() !== '') {
@@ -130,36 +119,28 @@
             });
         }
 
-
         function isChecked(value) {
-            let answers = {{ question.Answers | default ([]) | tojson
-        }};
-        if (answers.length === 0 && '{{ question.Answer }}' !== '') {
-            answers = ['{{ question.Answer }}'];
+            let answers = {{ question.Answers | default([]) | tojson }};
+            if (answers.length === 0 && '{{ question.Answer }}' !== '') {
+                answers = ['{{ question.Answer }}'];
+            }
+            return answers.includes(value.toString()) ? 'checked' : '';
         }
-        return answers.includes(value.toString()) ? 'checked' : '';
-       }
-
 
         function addChoice() {
-            const choicesDiv = document.getElementById('choices');
-            const choiceCount = choicesDiv.getElementsByTagName('label').length + 1;
+            const otherChoicesDiv = document.getElementById('other_choices');
             const newChoice = document.createElement('div');
-            newChoice.innerHTML = `<label>${choiceCount}. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()"></textarea></label><br>`;
-            choicesDiv.appendChild(newChoice);
-            updateAnswerOptions();
+            newChoice.innerHTML = `<textarea name="fib_others[]" rows="2"></textarea>`;
+            otherChoicesDiv.appendChild(newChoice);
         }
-
 
         function removeChoice() {
-            const choicesDiv = document.getElementById('choices');
-            const choices = choicesDiv.getElementsByTagName('div');
-            if (choices.length > 2) {
-                choicesDiv.removeChild(choices[choices.length - 1]);
-                updateAnswerOptions();
+            const otherChoicesDiv = document.getElementById('other_choices');
+            const choices = otherChoicesDiv.getElementsByTagName('div');
+            if (choices.length > 1) {
+                otherChoicesDiv.removeChild(choices[choices.length - 1]);
             }
         }
-
 
         function loadCategories() {
             fetch('/categories')
@@ -173,7 +154,6 @@
                         option.text = category.name;
                         mainCategorySelect.appendChild(option);
                     });
-
 
                     const category = {
                         main: "{{ question.Category.main if question.Category else '' }}",
@@ -198,7 +178,6 @@
                 });
         }
 
-
         function updateSubcategories(callback) {
             const mainCategory = document.getElementById('main_category').value;
             fetch('/categories')
@@ -220,7 +199,6 @@
                     if (callback) callback();
                 });
         }
-
 
         function updateMinorCategories(callback) {
             const mainCategory = document.getElementById('main_category').value;
@@ -246,7 +224,6 @@
                 });
         }
 
-
         function validateForm(event) {
             const questionType = document.querySelector('input[name="question_type"]:checked').value;
             if (questionType === 'multiple') {
@@ -258,13 +235,17 @@
             }
         }
 
-
         document.addEventListener('DOMContentLoaded', () => {
+            window.question = {{ question | tojson | safe }};
             loadCategories();
             document.getElementById('main_category').addEventListener('change', () => updateSubcategories());
             document.getElementById('sub_category').addEventListener('change', () => updateMinorCategories());
             updateAnswerOptions();
             showForm();
+            const textarea = document.getElementsByName('fib_question')[0];
+            textarea.addEventListener('focus', resetBlanks);
+            textarea.addEventListener('input', enableGenerateButton);
+            generateAnswerFields(); // 페이지 로드 시 정답 필드 생성
             document.querySelector('form').addEventListener('submit', validateForm);
         });
     </script>
@@ -273,7 +254,6 @@
 <body>
     <h1 id="main-title">SSAT 출제 시스템</h1>
     <h1>문제 수정</h1>
-
 
     <div class="form-container">
         <form action="/edit/{{ question.ID }}" method="POST">
@@ -289,7 +269,6 @@
                 <input type="radio" name="question_type" value="fill_in_the_blank" onclick="showForm()" {% if
                     question.Type=='fill_in_the_blank' %}checked{% endif %}> 빈칸 채우기
             </label>
-
 
             <div id="multiple_choice"
                 style="display: {% if question.Type == 'multiple' %}block{% else %}none{% endif %};">
@@ -319,7 +298,6 @@
                 </div>
             </div>
 
-
             <div id="subjective" style="display: {% if question.Type == 'subjective' %}block{% else %}none{% endif %};">
                 <h3>주관식 문제</h3>
                 <label>문제: <textarea name="sub_question" rows="3"
@@ -328,40 +306,24 @@
                         required>{{ question.Answers[0] if question.Answers else question.Answer }}</textarea></label><br>
             </div>
 
-            <div id="fill_in_the_blank" style="display: {% if question.Type == 'fill_in_the_blank' %}block{% else %}none{% endif %};">
+            <div id="fill_in_the_blank"
+                style="display: {% if question.Type == 'fill_in_the_blank' %}block{% else %}none{% endif %};">
                 <h3>빈칸 채우기 문제</h3>
-                <label>문제:  (작성예: 한국의 수도는{ }이고, 미국의 수도는 { }이다.)<textarea name="fib_question" rows="3" required>{{ question.Question }}</textarea></label><br>
+                <label>문제: (작성예: 한국의 수도는{ }이고, 미국의 수도는 { }이다.)<textarea name="fib_question" rows="3"
+                        required>{{ question.Question }}</textarea></label><br>
                 <button type="button" onclick="generateAnswerFields()">정답 입력</button><br>
-                <div id="fib_answers"><h4>정답</h4></div>
+                <div id="fib_answers"></div>
                 <div id="other_choices">
                     <h4>보기</h4>
-                    {% for other in question.Choices %}
-                        <div>
-                            <textarea name="fib_others[]" rows="2">{{ other }}</textarea>
-                        </div>
+                    {% for other in question.Answers.others %}
+                    <div>
+                        <textarea name="fib_others[]" rows="2">{{ other }}</textarea>
+                    </div>
                     {% endfor %}
                 </div>
                 <button type="button" onclick="addChoice()">보기 추가</button>
                 <button type="button" onclick="removeChoice()">보기 삭제</button><br>
             </div>
-
-
-            <script>
-                function addChoice() {
-                    const otherChoicesDiv = document.getElementById('other_choices');
-                    const newChoice = document.createElement('div');
-                    newChoice.innerHTML = `<textarea name="fib_others[]" rows="2"></textarea>`;
-                    otherChoicesDiv.appendChild(newChoice);
-                }
-            
-                function removeChoice() {
-                    const otherChoicesDiv = document.getElementById('other_choices');
-                    const choices = otherChoicesDiv.getElementsByTagName('div');
-                    if (choices.length > 1) {
-                        otherChoicesDiv.removeChild(choices[choices.length - 1]);
-                    }
-                }
-            </script>
 
             <h3>분류</h3>
             <label>대분류:
@@ -380,10 +342,8 @@
                 </select>
             </label><br>
 
-
             <label>출처: <input type="text" name="source" value="{{ question.Source }}"></label><br>
             <label>태그: <textarea name="tags" rows="3">{{ question.Tags }}</textarea></label><br>
-
 
             <input type="submit" value="수정">
         </form>

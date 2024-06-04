@@ -479,7 +479,7 @@
             <h3>빈칸 채우기 문제</h3>
             <label>문제:  (작성예: 한국의 수도는{ }이고, 미국의 수도는 { }이다.)<textarea name="fib_question" rows="3" required></textarea></label><br>
             <button type="button" onclick="generateAnswerFields()">정답 입력</button><br>
-            <div id="fib_answers"><h4>정답</h4></div>
+            <div id="fib_answers"></div>
             <div id="other_choices">
                 <h4>보기</h4>
                 <div>
@@ -489,7 +489,7 @@
             <button type="button" onclick="addChoice()">보기 추가</button>
             <button type="button" onclick="removeChoice()">보기 삭제</button><br>
         </div>
-
+        
         <script>
             function addChoice() {
                 const otherChoicesDiv = document.getElementById('other_choices');
