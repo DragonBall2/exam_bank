@@ -244,7 +244,8 @@ Project structure
             raw_answers = request.form.getlist('fib_answer[]')
             others = request.form.getlist('fib_others[]')
             answers = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
-            answers['others'] = others  # Add the other choices to the answers dict
+            for i, other in enumerate(others):
+                answers[f"other#{i + 1}"] = other  # Add each other choice with a unique key
     
         main_category = request.form['main_category']
         sub_category = request.form['sub_category']
@@ -295,51 +296,78 @@ Project structure
         return redirect(url_for('index'))
     
     
+    
     @app.route('/edit/<int:question_id>', methods=['GET', 'POST'])
     @login_required
     def edit_question(question_id):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
+        
+        # 기존 데이터를 찾음
         question = next((q for q in data if q['ID'] == question_id and (q['SubmitterID'] == current_user.id or current_user.id == 'admin')), None)
+        
         if question is None:
             flash('Question not found or you do not have permission to edit it.', 'error')
             return redirect(url_for('index'))
-    
+        
         if request.method == 'POST':
             question_type = request.form['question_type']
-            choices = []
+            new_question = {}
+            
+            # 폼 데이터를 바탕으로 새로운 데이터를 생성
             if question_type == 'multiple':
-                question['Question'] = request.form['mc_question']
-                question['Choices'] = request.form.getlist('mc_choices[]')
-                question['Answers'] = request.form.getlist('mc_answers[]')
+                new_question = {
+                    'Question': request.form['mc_question'],
+                    'Choices': request.form.getlist('mc_choices[]'),
+                    'Answers': request.form.getlist('mc_answers[]')
+                }
             elif question_type == 'subjective':
-                question['Question'] = request.form['sub_question']
-                question['Answers'] = [request.form['sub_answer']]
-                question['Choices'] = None
+                new_question = {
+                    'Question': request.form['sub_question'],
+                    'Answers': [request.form['sub_answer']],
+                    'Choices': None
+                }
             elif question_type == 'fill_in_the_blank':
-                question['Question'] = request.form['fib_question']
                 raw_answers = request.form.getlist('fib_answer[]')
-                others = request.form.getlist('fib_others[]')
-                question['Answers'] = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
-                question['Answers']['others'] = others  # Update the other choices in the answers dict
-                question['Choices'] = None
-    
-            question['Category'] = {
-                'main': request.form['main_category'],
-                'sub': request.form['sub_category'],
-                'minor': request.form['minor_category']
-            }
-            question['Tags'] = request.form['tags']
-            question['Source'] = request.form['source']
-            question['LastModifiedTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    
+                other_choices = request.form.getlist('fib_others[]')
+                answers = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
+                for i, other in enumerate(other_choices):
+                    answers[f"other#{i + 1}"] = other  # Add each other choice with a unique key
+                
+                new_question = {
+                    'Question': request.form['fib_question'],
+                    'Answers': answers,
+                    'Choices': None
+                }
+            
+            # 카테고리, 태그, 출처, 시간 정보 등을 설정
+            new_question.update({
+                'ID': question['ID'],  # 기존 ID 유지
+                'Type': question_type,
+                'SubmitterID': current_user.id,
+                'Category': {
+                    'main': request.form['main_category'],
+                    'sub': request.form['sub_category'],
+                    'minor': request.form['minor_category']
+                },
+                'Tags': request.form['tags'],
+                'Source': request.form['source'],
+                'SubmissionTime': question['SubmissionTime'],  # 기존 제출 시간 유지
+                'LastModifiedTime': datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 현재 시간으로 수정 시간 설정
+            })
+            
+            # 기존 데이터를 덮어쓰지 않고 새로운 데이터를 생성하여 리스트에 저장
+            data = [q if q['ID'] != question_id else new_question for q in data]
+            
+            # 데이터 파일에 저장
             with open(DATA_FILE, 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
-    
+            
             flash('Question successfully updated!', 'success')
             return redirect(url_for('index'))
-    
+        
         return render_template('edit_question.html', question=question)
+    
     
     
     
@@ -1005,10 +1033,10 @@ Project structure
                 <div id="fill_in_the_blank" style="display: {% if last_type == 'fill_in_the_blank' %}block{% else %}none{% endif %};">
                     <h3>빈칸 채우기 문제</h3>
                     <label>문제:  (작성예: 한국의 수도는{ }이고, 미국의 수도는 { }이다.)<textarea name="fib_question" rows="3" required></textarea></label><br>
-                    <button type="button" onclick="generateAnswerFields()">정답 입력</button><br>
+                    <button type="button" onclick="generateAnswerFields()">정답 입력</button><br><br>
                     <div id="fib_answers"></div>
                     <div id="other_choices">
-                        <h4>보기</h4>
+                        <h4>오답 보기 추가 (선택)</h4>
                         <div>
                             <textarea name="fib_others[]" rows="2"></textarea>
                         </div>
@@ -1198,6 +1226,11 @@ Project structure
                     subjective.style.display = type === 'subjective' ? 'block' : 'none';
                     fillInTheBlank.style.display = type === 'fill_in_the_blank' ? 'block' : 'none';
         
+                    // if(type === 'fill_in_the_blank'){
+                    //     resetBlanks()
+                    //     generateAnswerFields()
+                    // }
+        
                     document.getElementsByName('mc_question')[0].disabled = type !== 'multiple';
                     document.getElementsByName('mc_choices[]').forEach(field => field.disabled = type !== 'multiple');
                     document.getElementsByName('mc_answers[]').forEach(field => field.disabled = type !== 'multiple');
@@ -1208,6 +1241,7 @@ Project structure
                 }
         
                 let originalBlanks = [];
+                let previousAnswers = [];
                 let initialQuestion = '';
         
                 function generateAnswerFields() {
@@ -1218,40 +1252,41 @@ Project structure
                     const answerDiv = document.querySelector('#fib_answers');
         
                     // 기존 매핑을 저장
-                    const existingAnswers = window.question ? window.question.Answers : {};
-                    const existingOthers = window.question && window.question.Answers.others ? window.question.Answers.others : [];
+                    const existingAnswers = Array.from(document.getElementsByName('fib_answer[]')).map(input => input.value);
+                    // 매핑을 유지하며 삭제된 blank에 대응하는 정답 제거
+                    previousAnswers = previousAnswers.filter((_, index) => index < blanks.length);
         
                     if (answerDiv) {
                         answerDiv.innerHTML = '';
                         let updatedQuestion = question;
+                        let currentAnswerIndex = 0;
         
-                        blanks.forEach((_, i) => {
+                        for (let i = 0; i < blanks.length; i++) {
                             const label = document.createElement('label');
                             label.innerText = `Blank#${i + 1}: `;
                             const input = document.createElement('input');
                             input.type = 'text';
                             input.name = 'fib_answer[]';
                             input.required = true;
-                            input.value = existingAnswers[`Blank#${i + 1}`] || '';
+                            if (previousAnswers[currentAnswerIndex] !== undefined) {
+                                input.value = previousAnswers[currentAnswerIndex];
+                            } else if (existingAnswers[currentAnswerIndex] !== undefined) {
+                                input.value = existingAnswers[currentAnswerIndex];
+                            }
+                            currentAnswerIndex++;
                             answerDiv.appendChild(label);
                             answerDiv.appendChild(input);
                             answerDiv.appendChild(document.createElement('br'));
+        
                             updatedQuestion = updatedQuestion.replace(/{\s*}/, `{Blank#${i + 1}}`);
-                        });
+                        }
         
                         originalBlanks = blanks;
                         initialQuestion = updatedQuestion;
                         textarea.value = updatedQuestion;
                         document.querySelector('button[onclick="generateAnswerFields()"]').disabled = true; // 버튼 비활성화
         
-                        // Other choices (보기) 업데이트
-                        const otherChoicesDiv = document.getElementById('other_choices');
-                        otherChoicesDiv.innerHTML = '';
-                        existingOthers.forEach(choice => {
-                            const newChoice = document.createElement('div');
-                            newChoice.innerHTML = `<textarea name="fib_others[]" rows="2">${choice}</textarea>`;
-                            otherChoicesDiv.appendChild(newChoice);
-                        });
+                
                     } else {
                         console.error("Element with id 'fib_answers' not found.");
                     }
@@ -1259,13 +1294,27 @@ Project structure
         
                 function resetBlanks() {
                     const textarea = document.getElementsByName('fib_question')[0];
-                    textarea.value = textarea.value.replace(/{Blank#\d+}/g, (match) => {
-                        const blankNumber = parseInt(match.match(/\d+/)[0], 10) - 1;
-                        const blankCount = originalBlanks[blankNumber];
-                        return `{${' '.repeat(blankCount)}}`;
-                    });
-                    document.querySelector('button[onclick="generateAnswerFields()"]').disabled = false; // 버튼 활성화
+                    const blankMatches = textarea.value.match(/{\s*Blank#\d+\s*}|{\s*}/g) || [];
+        
+                    if (blankMatches.length === 0) {
+                        // 빈칸이 하나도 없는 경우 버튼 비활성화
+                        document.querySelector('button[onclick="generateAnswerFields()"]').disabled = true;
+                    } else {
+                        // 빈칸이 하나라도 있는 경우 버튼 활성화
+                        textarea.value = textarea.value.replace(/{\s*Blank#\d+\s*}|{\s*}/g, (match) => {
+                            let blankCount;
+                            if (match.includes('Blank#')) {
+                                const blankNumber = parseInt(match.match(/\d+/)[0], 10) - 1;
+                                blankCount = originalBlanks[blankNumber];
+                            } else {
+                                blankCount = match.length - 2; // 중괄호를 제외한 공백 수
+                            }
+                            return `{${' '.repeat(blankCount)}}`;
+                        });
+                        document.querySelector('button[onclick="generateAnswerFields()"]').disabled = false; // 버튼 활성화
+                    }
                 }
+        
         
                 function enableGenerateButton() {
                     const textarea = document.getElementsByName('fib_question')[0];
@@ -1281,11 +1330,12 @@ Project structure
                     const answerDiv = document.getElementById('mc_answers');
                     answerDiv.innerHTML = '<h4>정답</h4>';
         
+        
                     choices.forEach((choice, index) => {
                         if (choice.value.trim() !== '') {
                             const label = document.createElement('label');
                             label.style.marginRight = '10px';
-                            label.innerHTML = `<input type="checkbox" name="mc_answers[]" value="${index + 1}" ${isChecked(index + 1)}> ${index + 1}`;
+                            label.innerHTML = `<input type="checkbox" name="mc_answers[]" value="${index + 1}"> ${index + 1}`;
                             answerDiv.appendChild(label);
                         }
                     });
@@ -1417,8 +1467,6 @@ Project structure
                     const textarea = document.getElementsByName('fib_question')[0];
                     textarea.addEventListener('focus', resetBlanks);
                     textarea.addEventListener('input', enableGenerateButton);
-                    resetBlanks();
-                    generateAnswerFields(); // 페이지 로드 시 정답 필드 생성
                     document.querySelector('form').addEventListener('submit', validateForm);
                 });
             </script>
@@ -1484,16 +1532,31 @@ Project structure
                         <h3>빈칸 채우기 문제</h3>
                         <label>문제: (작성예: 한국의 수도는{ }이고, 미국의 수도는 { }이다.)<textarea name="fib_question" rows="3"
                                 required>{{ question.Question }}</textarea></label><br>
-                        <button type="button" onclick="generateAnswerFields()">정답 입력</button><br>
-                        <div id="fib_answers"></div>
-                        <div id="other_choices">
-                            <h4>보기</h4>
-                            {% for other in question.Answers.others %}
-                            <div>
-                                <textarea name="fib_others[]" rows="2">{{ other }}</textarea>
-                            </div>
-                            {% endfor %}
+                        <button type="button" onclick="generateAnswerFields()">정답 입력</button><br><br>
+                        
+                        <div id="fib_answers">
+                            {% if question.Type == 'fill_in_the_blank' %}
+                                {% for key, value in question.Answers.items() %}
+                                    {% if key.startswith('Blank#') %}
+                                            <label>{{ key }}</label>
+                                            <input name="fib_answer[]" type="text" value="{{value}}" required>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
                         </div>
+                        <div id="other_choices">
+                            <h4>오답 보기 추가 (선택)</h4>
+                            {% if question.Type == 'fill_in_the_blank' %}
+                            {% for key, value in question.Answers.items() %}
+                                {% if key.startswith('other#') %}
+                                    <div>
+                                        <textarea name="fib_others[]" rows="2">{{ value }}</textarea>
+                                    </div> 
+                                {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                        
                         <button type="button" onclick="addChoice()">보기 추가</button>
                         <button type="button" onclick="removeChoice()">보기 삭제</button><br>
                     </div>

@@ -227,7 +227,8 @@ def submit_question():
         raw_answers = request.form.getlist('fib_answer[]')
         others = request.form.getlist('fib_others[]')
         answers = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
-        answers['others'] = others  # Add the other choices to the answers dict
+        for i, other in enumerate(others):
+            answers[f"other#{i + 1}"] = other  # Add each other choice with a unique key
 
     main_category = request.form['main_category']
     sub_category = request.form['sub_category']
@@ -278,51 +279,78 @@ def submit_question():
     return redirect(url_for('index'))
 
 
+
 @app.route('/edit/<int:question_id>', methods=['GET', 'POST'])
 @login_required
 def edit_question(question_id):
     with open(DATA_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
+    
+    # 기존 데이터를 찾음
     question = next((q for q in data if q['ID'] == question_id and (q['SubmitterID'] == current_user.id or current_user.id == 'admin')), None)
+    
     if question is None:
         flash('Question not found or you do not have permission to edit it.', 'error')
         return redirect(url_for('index'))
-
+    
     if request.method == 'POST':
         question_type = request.form['question_type']
-        choices = []
+        new_question = {}
+        
+        # 폼 데이터를 바탕으로 새로운 데이터를 생성
         if question_type == 'multiple':
-            question['Question'] = request.form['mc_question']
-            question['Choices'] = request.form.getlist('mc_choices[]')
-            question['Answers'] = request.form.getlist('mc_answers[]')
+            new_question = {
+                'Question': request.form['mc_question'],
+                'Choices': request.form.getlist('mc_choices[]'),
+                'Answers': request.form.getlist('mc_answers[]')
+            }
         elif question_type == 'subjective':
-            question['Question'] = request.form['sub_question']
-            question['Answers'] = [request.form['sub_answer']]
-            question['Choices'] = None
+            new_question = {
+                'Question': request.form['sub_question'],
+                'Answers': [request.form['sub_answer']],
+                'Choices': None
+            }
         elif question_type == 'fill_in_the_blank':
-            question['Question'] = request.form['fib_question']
             raw_answers = request.form.getlist('fib_answer[]')
-            others = request.form.getlist('fib_others[]')
-            question['Answers'] = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
-            question['Answers']['others'] = others  # Update the other choices in the answers dict
-            question['Choices'] = None
-
-        question['Category'] = {
-            'main': request.form['main_category'],
-            'sub': request.form['sub_category'],
-            'minor': request.form['minor_category']
-        }
-        question['Tags'] = request.form['tags']
-        question['Source'] = request.form['source']
-        question['LastModifiedTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+            other_choices = request.form.getlist('fib_others[]')
+            answers = {f"Blank#{i + 1}": answer for i, answer in enumerate(raw_answers)}
+            for i, other in enumerate(other_choices):
+                answers[f"other#{i + 1}"] = other  # Add each other choice with a unique key
+            
+            new_question = {
+                'Question': request.form['fib_question'],
+                'Answers': answers,
+                'Choices': None
+            }
+        
+        # 카테고리, 태그, 출처, 시간 정보 등을 설정
+        new_question.update({
+            'ID': question['ID'],  # 기존 ID 유지
+            'Type': question_type,
+            'SubmitterID': current_user.id,
+            'Category': {
+                'main': request.form['main_category'],
+                'sub': request.form['sub_category'],
+                'minor': request.form['minor_category']
+            },
+            'Tags': request.form['tags'],
+            'Source': request.form['source'],
+            'SubmissionTime': question['SubmissionTime'],  # 기존 제출 시간 유지
+            'LastModifiedTime': datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 현재 시간으로 수정 시간 설정
+        })
+        
+        # 기존 데이터를 덮어쓰지 않고 새로운 데이터를 생성하여 리스트에 저장
+        data = [q if q['ID'] != question_id else new_question for q in data]
+        
+        # 데이터 파일에 저장
         with open(DATA_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
-
+        
         flash('Question successfully updated!', 'success')
         return redirect(url_for('index'))
-
+    
     return render_template('edit_question.html', question=question)
+
 
 
 

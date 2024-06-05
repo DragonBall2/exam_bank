@@ -478,10 +478,10 @@
         <div id="fill_in_the_blank" style="display: {% if last_type == 'fill_in_the_blank' %}block{% else %}none{% endif %};">
             <h3>빈칸 채우기 문제</h3>
             <label>문제:  (작성예: 한국의 수도는{ }이고, 미국의 수도는 { }이다.)<textarea name="fib_question" rows="3" required></textarea></label><br>
-            <button type="button" onclick="generateAnswerFields()">정답 입력</button><br>
+            <button type="button" onclick="generateAnswerFields()">정답 입력</button><br><br>
             <div id="fib_answers"></div>
             <div id="other_choices">
-                <h4>보기</h4>
+                <h4>오답 보기 추가 (선택)</h4>
                 <div>
                     <textarea name="fib_others[]" rows="2"></textarea>
                 </div>
