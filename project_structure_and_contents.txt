@@ -1,3 +1,17 @@
+Project structure
+-----------------
+./
+    app.py
+    templates/
+        login.html
+        index.html
+        edit_question.html
+        change_password.html
+        manage_categories.html
+        register.html
+    static/
+        styles.css
+
 ./
     app.py
     ------
