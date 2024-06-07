@@ -259,7 +259,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             window.question = {{ question | tojson | safe }};
-            initialQuestion = window.question.Question
+            initialQuestion = document.getElementsByName('fib_question')[0].value
             enableGenerateButton()
             loadCategories();
             document.getElementById('main_category').addEventListener('change', () => updateSubcategories());
