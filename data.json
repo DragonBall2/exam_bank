@@ -602,5 +602,26 @@
         "Source": "",
         "SubmissionTime": "2024-06-05 16:00:29",
         "LastModifiedTime": ""
+    },
+    {
+        "ID": 28,
+        "Type": "fill_in_the_blank",
+        "Question": "{Blank#1}{Blank#2}",
+        "Choices": [],
+        "Answers": {
+            "Blank#1": "a",
+            "Blank#2": "b",
+            "other#1": ""
+        },
+        "SubmitterID": "admin",
+        "Category": {
+            "main": "",
+            "sub": "",
+            "minor": ""
+        },
+        "Tags": "None",
+        "Source": "",
+        "SubmissionTime": "2024-06-07 00:07:38",
+        "LastModifiedTime": ""
     }
 ]

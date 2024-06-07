@@ -1459,6 +1459,8 @@ Project structure
         
                 document.addEventListener('DOMContentLoaded', () => {
                     window.question = {{ question | tojson | safe }};
+                    initialQuestion = window.question.Question
+                    enableGenerateButton()
                     loadCategories();
                     document.getElementById('main_category').addEventListener('change', () => updateSubcategories());
                     document.getElementById('sub_category').addEventListener('change', () => updateMinorCategories());
