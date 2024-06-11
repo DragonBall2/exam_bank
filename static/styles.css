@@ -39,7 +39,7 @@ input[type="text"],
 input[type="password"],
 input[type="number"],
 textarea {
-   width: 100%;
+   /* width: 100%; */
    padding: 8px;
    margin-top: 5px;
    margin-bottom: 20px;
@@ -107,8 +107,23 @@ input[type="submit"]:hover {
 #choices textarea {
    flex: 1;
    margin-left: 10px;
+   margin-bottom: -20px;
 }
 
+#question {
+   display: flex;
+   margin-bottom: 20px;
+}
+
+#question label {
+   display: block;
+   margin-bottom: -20px;
+}
+
+
+#question textarea {
+   flex: 1;
+}
 
 .flashes {
    list-style-type: none;

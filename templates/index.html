@@ -450,7 +450,12 @@
         <div id="multiple_choice"
             style="display: {% if last_type == 'multiple' or last_type is none %}block{% else %}none{% endif %};">
             <h3>객관식 문제</h3>
-            <label>문제: <textarea name="mc_question" rows="3" required></textarea></label><br>
+            <div id="question">
+                <label for="mc_question">문제:</label>
+            </div>
+            <div id="question">
+                <textarea name="mc_question" id="mc_question" rows="3" required></textarea>
+            </div>
             <div id="choices">
                 <div><label>1. <textarea name="mc_choices[]" rows="3" oninput="updateAnswerOptions()"
                             required></textarea></label><br></div>
