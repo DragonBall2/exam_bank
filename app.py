@@ -208,6 +208,25 @@ def logout():
    return response
 
 
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = 'image_data'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the upload folder exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+def save_image(file, filename):
+    if file:
+        folder_path = os.path.join(app.config['UPLOAD_FOLDER'], str(filename.split('_')[-1].split('.')[0]))
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        filepath = os.path.join(folder_path, filename)
+        file.save(filepath)
+        return filepath
+    return None
+
 @app.route('/submit', methods=['POST'])
 @login_required
 def submit_question():
@@ -358,19 +377,50 @@ def edit_question(question_id):
 
 
 
+import shutil
+
 @app.route('/delete/<int:question_id>', methods=['POST'])
 @login_required
 def delete_question(question_id):
-   try:
-       with open(DATA_FILE, 'r', encoding='utf-8') as f:
-           data = json.load(f)
-       data = [q for q in data if not (q['ID'] == question_id and (q['SubmitterID'] == current_user.id or current_user.id == 'admin'))]
-       with open(DATA_FILE, 'w', encoding='utf-8') as f:
-           json.dump(data, f, ensure_ascii=False, indent=4)
-       flash('Question successfully deleted!', 'success')
-   except Exception as e:
-       flash(f'An error occurred while deleting the question: {e}', 'error')
-   return redirect(url_for('index'))
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        question = next((q for q in data if q['ID'] == question_id and (q['SubmitterID'] == current_user.id or current_user.id == 'admin')), None)
+        if question:
+            folder_path = os.path.join(app.config['UPLOAD_FOLDER'], str(question_id))
+            if os.path.exists(folder_path):
+                shutil.rmtree(folder_path)
+            data = [q for q in data if q['ID'] != question_id]
+            with open(DATA_FILE, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+            flash('Question and associated images successfully deleted!', 'success')
+        else:
+            flash('Question not found or you do not have permission to delete it.', 'error')
+    except Exception as e:
+        flash(f'An error occurred while deleting the question: {e}', 'error')
+    return redirect(url_for('index'))
+
+@app.route('/delete_image', methods=['POST'])
+@login_required
+def delete_image():
+    try:
+        data = request.get_json()
+        question_id = data['question_id']
+        image_type = data['image_type']
+        filename_map = {
+            'question_image': f'img_question_{question_id}.png',
+            'answer_image': f'img_answer_{question_id}.png'
+        }
+        if 'choice_image_' in image_type:
+            choice_num = image_type.split('_')[2]
+            filename_map[image_type] = f'img_choice_{choice_num}_{question_id}.png'
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], str(question_id), filename_map[image_type])
+        if os.path.exists(image_path):
+            os.remove(image_path)
+        return jsonify(success=True)
+    except Exception as e:
+        return jsonify(success=False, error=str(e))
+
 
 
 @app.route('/submit_voc', methods=['POST'])
